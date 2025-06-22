@@ -11,14 +11,15 @@ import {
   TableBody,
   Button,
   Chip,
-  CircularProgress,
   Alert,
   Box,
   IconButton,
   Tooltip,
   LinearProgress,
   Paper,
+  Container
 } from "@mui/material";
+import { CircleLoader } from "react-spinners";
 import {
   ArrowBack as BackIcon,
   Visibility as ViewIcon,
@@ -98,57 +99,121 @@ const QuizHistoryPage = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <CircleLoader size={60} color="#ffffff" />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box p={3}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button
-          variant="outlined"
-          startIcon={<BackIcon />}
-          onClick={handleBackToQuizzes}
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 3
+        }}
+      >
+        <Paper
+          elevation={8}
+          sx={{
+            p: 4,
+            maxWidth: 500,
+            borderRadius: 3,
+            boxShadow: '0 16px 48px rgba(0,0,0,0.2)'
+          }}
         >
-          Back to Quizzes
-        </Button>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+            {error}
+          </Alert>
+          <Button
+            variant="outlined"
+            startIcon={<BackIcon />}
+            onClick={handleBackToQuizzes}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600
+            }}
+          >
+            Back to Quizzes
+          </Button>
+        </Paper>
       </Box>
     );
   }
 
   return (
-    <Box p={3}>
-      {/* Header */}
-      <Box display="flex" alignItems="center" mb={3}>
-        <IconButton onClick={handleBackToQuizzes} sx={{ mr: 2 }}>
-          <BackIcon />
-        </IconButton>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Quiz History
-          </Typography>
-          <Typography variant="h6" color="text.secondary">
-            {quiz?.title}
-          </Typography>
-          {quiz?.course_title && (
-            <Typography variant="body2" color="text.secondary">
-              Course: {quiz.course_title}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        p: 3
+      }}
+    >
+      <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        {/* Header */}
+        <Box display="flex" alignItems="center" mb={3}>
+          <IconButton 
+            onClick={handleBackToQuizzes} 
+            sx={{ 
+              mr: 2,
+              bgcolor: 'rgba(255,255,255,0.1)',
+              color: 'white',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.2)',
+                transform: 'scale(1.05)'
+              },
+              borderRadius: 2
+            }}
+          >
+            <BackIcon />
+          </IconButton>
+          <Box>
+            <Typography 
+              variant="h4" 
+              component="h1" 
+              gutterBottom
+              sx={{ color: 'white', fontWeight: 700 }}
+            >
+              Quiz History
             </Typography>
-          )}
+            <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              {quiz?.title}
+            </Typography>
+            {quiz?.course_title && (
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                Course: {quiz.course_title}
+              </Typography>
+            )}
+          </Box>
         </Box>
-      </Box>
 
-      {/* Quiz Summary */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Box display="flex" alignItems="center" mb={2}>
-          <QuizIcon sx={{ mr: 1, color: 'primary.main' }} />
-          <Typography variant="h6">Quiz Summary</Typography>
-        </Box>
+        {/* Quiz Summary */}
+        <Paper 
+          elevation={8}
+          sx={{ 
+            p: 3, 
+            mb: 3,
+            borderRadius: 3,
+            boxShadow: '0 16px 48px rgba(0,0,0,0.2)'
+          }}
+        >
+          <Box display="flex" alignItems="center" mb={2}>
+            <QuizIcon sx={{ mr: 1, color: 'primary.main' }} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Quiz Summary</Typography>
+          </Box>
         <Box display="flex" gap={4} flexWrap="wrap">
           <Box>
             <Typography variant="body2" color="text.secondary">
@@ -156,12 +221,7 @@ const QuizHistoryPage = () => {
             </Typography>
             <Typography variant="h6">{attempts.length}</Typography>
           </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">
-              Passing Score
-            </Typography>
-            <Typography variant="h6">{quiz?.passing_score || 0}%</Typography>
-          </Box>
+
           <Box>
             <Typography variant="body2" color="text.secondary">
               Best Score
@@ -179,14 +239,20 @@ const QuizHistoryPage = () => {
             </Typography>
           </Box>
         </Box>
-      </Paper>
+        </Paper>
 
-      {/* Attempts History */}
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Attempt History
-          </Typography>
+        {/* Attempts History */}
+        <Card 
+          elevation={8}
+          sx={{
+            borderRadius: 3,
+            boxShadow: '0 16px 48px rgba(0,0,0,0.2)'
+          }}
+        >
+          <CardContent>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+              Attempt History
+            </Typography>
           
           {attempts.length === 0 ? (
             <Box textAlign="center" py={4}>
@@ -203,13 +269,13 @@ const QuizHistoryPage = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Attempt #</TableCell>
-                    <TableCell>Date & Time</TableCell>
-                    <TableCell>Score</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Time Taken</TableCell>
-                    <TableCell>Correct Answers</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Attempt #</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Date & Time</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Score</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Time Taken</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Correct Answers</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -256,11 +322,12 @@ const QuizHistoryPage = () => {
                         </TableCell>
                         <TableCell>
                           <Chip
-                            label={status}
-                            color={getStatusColor(attempt)}
-                            size="small"
-                            icon={getStatusIcon(attempt)}
-                          />
+                              label={status}
+                              color={getStatusColor(attempt)}
+                              size="small"
+                              icon={getStatusIcon(attempt)}
+                              sx={{ borderRadius: 2 }}
+                            />
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
@@ -280,6 +347,11 @@ const QuizHistoryPage = () => {
                                 variant="outlined"
                                 startIcon={<ViewIcon />}
                                 onClick={() => handleViewAttempt(attempt.id)}
+                                sx={{
+                                  borderRadius: 2,
+                                  textTransform: 'none',
+                                  fontWeight: 600
+                                }}
                               >
                                 View
                               </Button>
@@ -293,8 +365,9 @@ const QuizHistoryPage = () => {
               </Table>
             </TableContainer>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Box>
     </Box>
   );
 };

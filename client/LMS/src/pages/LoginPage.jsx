@@ -11,11 +11,11 @@ import {
   Link,
   Paper,
   Alert,
-  CircularProgress,
   IconButton
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { ClockLoader } from "react-spinners";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useFormHandler } from "../hooks/useFormHandler";
@@ -79,32 +79,38 @@ const LoginPage = () => {
   return (
     <Container 
       maxWidth={false} 
+      disableGutters
       sx={{ 
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 2,
-        backgroundColor: '#f8f9fa'
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        py: 4
       }}
     >
       <Grid 
         container 
-        spacing={4} 
-        alignItems="center" 
-        justifyContent="center"
         sx={{ 
-          maxWidth: '1200px',
-          width: '100%'
+          maxWidth: { xs: '95%', md: '90%', lg: '1200px' },
+          minHeight: { xs: 'auto', md: '85vh' },
+          borderRadius: 4,
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+          backgroundColor: 'background.paper'
         }}
       >
         {/* Image Section */}
         <Grid 
-          size={{ xs: 12, md: 6 }}
+          item 
+          xs={12} 
+          md={6}
           sx={{
-            display: 'flex',
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
             justifyContent: 'center',
-            alignItems: 'center'
+            p: 4,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
           }}
         >
           <Box
@@ -112,32 +118,31 @@ const LoginPage = () => {
             src={loginImage}
             alt="Login illustration"
             sx={{ 
-              width: { xs: '70%', sm: '60%', md: '90%' },
+              width: '90%',
               maxWidth: '500px',
               height: 'auto',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))'
             }}
           />
         </Grid>
         
         {/* Form Section */}
         <Grid 
-          size={{ xs: 12, md: 6 }}
+          item 
+          xs={12} 
+          md={6}
           sx={{
             display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
-            alignItems: 'center'
+            p: { xs: 4, sm: 6, md: 8 }
           }}
         >
-          <Paper
-            elevation={3}
+          <Box
             sx={{
               width: '100%',
-              maxWidth: 450,
-              p: { xs: 3, sm: 4 },
-              mx: { xs: 2, sm: 0 },
-              borderRadius: 2,
-              position: 'relative'
+              maxWidth: 450
             }}
           >
             {/* Back Button */}
@@ -145,9 +150,13 @@ const LoginPage = () => {
               onClick={handleBackToHome}
               sx={{
                 position: 'absolute',
-                top: 16,
-                left: 16,
-                color: 'primary.main'
+                top: { xs: 24, sm: 32 },
+                left: { xs: 24, sm: 32 },
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: 'primary.main'
+                }
               }}
             >
               <ArrowBackIcon />
@@ -156,16 +165,28 @@ const LoginPage = () => {
             <Typography
               variant="h4"
               component="h1"
-              align="center"
               gutterBottom
               sx={{
-                mb: 4,
-                fontWeight: 600,
-                color: 'primary.main',
-                fontSize: { xs: '1.8rem', sm: '2rem' }
+                mb: 3,
+                fontWeight: 700,
+                color: 'text.primary',
+                fontSize: { xs: '1.8rem', sm: '2.2rem' },
+                textAlign: 'center'
               }}
             >
               Welcome Back
+            </Typography>
+
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                mb: 4,
+                textAlign: 'center',
+                fontSize: { xs: '0.9rem', sm: '1rem' }
+              }}
+            >
+              Sign in to access your personalized dashboard
             </Typography>
 
             {submitError && (
@@ -190,20 +211,23 @@ const LoginPage = () => {
                   py: 1.5,
                   textTransform: 'none',
                   fontSize: { xs: '0.9rem', sm: '1rem' },
-                  borderRadius: 2,
+                  borderRadius: 1,
+                  borderColor: '#7f00ff',
+                  color: '#7f00ff',
                   '&:hover': {
-                    backgroundColor: 'grey.50',
+                    backgroundColor: 'action.hover',
+                    borderColor: 'text.secondary'
                   }
                 }}
                 onClick={handleGoogleLogin}
-                disabled={loading}
+                disabled={loading || isSubmitting}
               >
-                {loading ? <CircularProgress size={24} /> : 'Sign in with Google'}
+                {loading || isSubmitting ? <ClockLoader size={24} color="#7f00ff" /> : 'Continue with Google'}
               </Button>
 
               <Divider sx={{ my: 3 }}>
                 <Typography variant="body2" color="text.secondary">
-                  OR
+                  or sign in with email
                 </Typography>
               </Divider>
 
@@ -223,6 +247,15 @@ const LoginPage = () => {
                 disabled={loading || isSubmitting}
                 error={!!errors.email}
                 helperText={errors.email}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
               <TextField
@@ -235,23 +268,42 @@ const LoginPage = () => {
                 id="password"
                 autoComplete="current-password"
                 size="medium"
-                sx={{ mb: 2 }}
+                sx={{ mb: 1 }}
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading || isSubmitting}
                 error={!!errors.password}
                 helperText={errors.password}
+                variant="outlined"
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
               <Box
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  mb: 2
+                  justifyContent: 'flex-end',
+                  mb: 3
                 }}
               >
-                <Link href="#" variant="body2" sx={{ fontWeight: 500 }}>
+                <Link 
+                  href="#" 
+                  variant="body2" 
+                  sx={{ 
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      color: 'primary.main'
+                    }
+                  }}
+                >
                   Forgot password?
                 </Link>
               </Box>
@@ -262,21 +314,22 @@ const LoginPage = () => {
                 variant="contained"
                 size="large"
                 sx={{ 
-                  mt: 2,
+                  mt: 1,
                   mb: 3,
                   py: 1.5,
                   fontSize: { xs: '1rem', sm: '1.1rem' },
                   fontWeight: 600,
                   textTransform: 'none',
-                  borderRadius: 2,
-                  boxShadow: 2,
+                  borderRadius: 1,
+                  boxShadow: 'none',
                   '&:hover': {
-                    boxShadow: 4
+                    boxShadow: 'none',
+                    opacity: 0.9
                   }
                 }}
                 disabled={loading || isSubmitting}
               >
-                {(loading || isSubmitting) ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+                {(loading || isSubmitting) ? <ClockLoader size={24} color="#ffffff" /> : 'Sign In'}
               </Button>
 
               <Typography 
@@ -284,26 +337,27 @@ const LoginPage = () => {
                 align="center"
                 sx={{ 
                   fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                  fontWeight: 500
+                  fontWeight: 500,
+                  color: 'text.secondary'
                 }}
               >
                 Don't have an account?{' '}
                 <Link 
                   href="/signup" 
-                  color="error"
                   sx={{ 
                     fontWeight: 600,
                     textDecoration: 'none',
+                    color: 'primary.main',
                     '&:hover': {
                       textDecoration: 'underline'
                     }
                   }}
                 >
-                  Register
+                  Sign up
                 </Link>
               </Typography>
             </Box>
-          </Paper>
+          </Box>
         </Grid>
       </Grid>
     </Container>

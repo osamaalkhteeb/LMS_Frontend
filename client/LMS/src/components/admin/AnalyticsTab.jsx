@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -7,9 +6,9 @@ import {
   Grid,
   Card,
   CardContent,
-  CircularProgress,
-  Alert
-} from '@mui/material';
+  Alert,
+} from "@mui/material";
+import { ClockLoader } from "react-spinners";
 import { FiTrendingUp, FiUsers, FiBookOpen, FiDollarSign, FiUserCheck, FiTarget } from 'react-icons/fi';
 import {
   Chart as ChartJS,
@@ -44,8 +43,13 @@ const AnalyticsTab = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={300}>
-        <CircularProgress />
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={300}
+      >
+        <ClockLoader size={50} color="#7f00ff" />
       </Box>
     );
   }
@@ -59,19 +63,27 @@ const AnalyticsTab = () => {
   }
 
   if (!analytics) {
-    console.log('AnalyticsTab - No analytics data available');
     return (
       <Alert severity="info" sx={{ mb: 2 }}>
         No analytics data available.
       </Alert>
     );
   }
-  
 
- 
+  // Color palette based on #7f00ff
+  const colorShades = [
+    "#7f00ff", // Base
+    "#9c27ff", // Slightly lighter
+    "#b266ff", // Lighter
+    "#c299ff", // Softer
+    "#d1b3ff", // Very light
+    "#a84dff", // Vibrant variant
+    "#8c1aff", // Deep variant
+    "#6600cc", // Darker variant
+  ];
 
   const StatCard = ({ title, value, icon: Icon, color }) => (
-    <Card sx={{ height: '100%' }}>
+    <Card sx={{ height: "100%" }}>
       <CardContent>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
@@ -93,28 +105,28 @@ const AnalyticsTab = () => {
     labels: analytics?.userTrend?.labels || [],
     datasets: [
       {
-        label: 'User Registrations',
+        label: "User Registrations",
         data: analytics?.userTrend?.data || [],
-        borderColor: '#2196f3',
-        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+        borderColor: colorShades[0],
+        backgroundColor: "rgba(127, 0, 255, 0.1)",
         tension: 0.4,
-        fill: true
-      }
-    ]
+        fill: true,
+      },
+    ],
   };
 
   const courseTrendChartData = {
     labels: analytics?.courseTrend?.labels || [],
     datasets: [
       {
-        label: 'Course Creation',
+        label: "Course Creation",
         data: analytics?.courseTrend?.data || [],
-        borderColor: '#ff9800',
-        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+        borderColor: colorShades[1],
+        backgroundColor: "rgba(156, 39, 255, 0.1)",
         tension: 0.4,
-        fill: true
-      }
-    ]
+        fill: true,
+      },
+    ],
   };
 
   const userRoleChartData = {
@@ -122,15 +134,11 @@ const AnalyticsTab = () => {
     datasets: [
       {
         data: analytics?.userRoleDistribution?.data || [],
-        backgroundColor: [
-          '#4caf50',
-          '#2196f3',
-          '#ff9800'
-        ],
+        backgroundColor: [colorShades[0], colorShades[1], colorShades[2]],
         borderWidth: 2,
-        borderColor: '#fff'
-      }
-    ]
+        borderColor: "#fff",
+      },
+    ],
   };
 
   const courseStatusChartData = {
@@ -138,61 +146,62 @@ const AnalyticsTab = () => {
     datasets: [
       {
         data: analytics?.courseStatusDistribution?.data || [],
-        backgroundColor: [
-          '#4caf50',
-          '#ff9800',
-          '#f44336'
-        ],
+        backgroundColor: [colorShades[3], colorShades[4], colorShades[5]],
         borderWidth: 2,
-        borderColor: '#fff'
-      }
-    ]
+        borderColor: "#fff",
+      },
+    ],
   };
 
-  // Courses by Category Chart Data
-
-  
   const coursesByCategoryChartData = {
-    labels: (Array.isArray(analytics.coursesByCategory) ? analytics.coursesByCategory : []).map(item => {
-      if (!item.category_name || item.category_name === 'null' || item.category_name === null) {
-        return 'Uncategorized';
+    labels: (Array.isArray(analytics.coursesByCategory)
+      ? analytics.coursesByCategory
+      : []
+    ).map((item) => {
+      if (
+        !item.category_name ||
+        item.category_name === "null" ||
+        item.category_name === null
+      ) {
+        return "Uncategorized";
       }
       return item.category_name;
     }),
     datasets: [
       {
-        data: (Array.isArray(analytics.coursesByCategory) ? analytics.coursesByCategory : []).map(item => item.course_count),
+        data: (Array.isArray(analytics.coursesByCategory)
+          ? analytics.coursesByCategory
+          : []
+        ).map((item) => item.course_count),
         backgroundColor: [
-          '#2196f3',
-          '#4caf50',
-          '#ff9800',
-          '#9c27b0',
-          '#f44336',
-          '#00bcd4',
-          '#795548',
-          '#607d8b'
+          colorShades[0],
+          colorShades[1],
+          colorShades[2],
+          colorShades[3],
+          colorShades[4],
+          colorShades[5],
+          colorShades[6],
+          colorShades[7],
         ],
         borderWidth: 2,
-        borderColor: '#fff'
-      }
-    ]
+        borderColor: "#fff",
+      },
+    ],
   };
-
-
 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top'
-      }
+        position: "top",
+      },
     },
     scales: {
       y: {
-        beginAtZero: true
-      }
-    }
+        beginAtZero: true,
+      },
+    },
   };
 
   const doughnutOptions = {
@@ -200,53 +209,9 @@ const AnalyticsTab = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom'
-      }
-    }
-  };
-
-  const dualAxisOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    scales: {
-      x: {
-        display: true,
-        title: {
-          display: true,
-          text: 'Courses'
-        }
-      },
-      y: {
-        type: 'linear',
-        display: true,
-        position: 'left',
-        title: {
-          display: true,
-          text: 'Enrollments'
-        }
-      },
-      y1: {
-        type: 'linear',
-        display: true,
-        position: 'right',
-        title: {
-          display: true,
-          text: 'Completion Rate (%)'
-        },
-        grid: {
-          drawOnChartArea: false,
-        },
+        position: "bottom",
       },
     },
-    plugins: {
-      legend: {
-        position: 'top'
-      }
-    }
   };
 
   return (
@@ -254,23 +219,16 @@ const AnalyticsTab = () => {
       <Typography variant="h4" gutterBottom>
         Analytics Dashboard
       </Typography>
-      
+
       {/* Key Metrics Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={2}>
-          <StatCard
-            title="Total Users"
-            value={analytics.totalUsers}
-            icon={FiUsers}
-            color="#2196f3"
-          />
-        </Grid>
+
         <Grid item xs={12} sm={6} md={2}>
           <StatCard
             title="Active Users"
             value={analytics.activeUsers}
             icon={FiUserCheck}
-            color="#4caf50"
+            color={colorShades[1]}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={2}>
@@ -278,7 +236,7 @@ const AnalyticsTab = () => {
             title="Total Courses"
             value={analytics.totalCourses}
             icon={FiBookOpen}
-            color="#ff9800"
+            color={colorShades[2]}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={2}>
@@ -286,11 +244,9 @@ const AnalyticsTab = () => {
             title="Enrollments"
             value={analytics.totalEnrollments}
             icon={FiTarget}
-            color="#9c27b0"
+            color={colorShades[3]}
           />
         </Grid>
-
-
       </Grid>
 
       {/* Charts Section */}
@@ -338,7 +294,10 @@ const AnalyticsTab = () => {
               Course Status Distribution
             </Typography>
             <Box sx={{ height: 300 }}>
-              <Doughnut data={courseStatusChartData} options={doughnutOptions} />
+              <Doughnut
+                data={courseStatusChartData}
+                options={doughnutOptions}
+              />
             </Box>
           </Paper>
         </Grid>
@@ -350,12 +309,13 @@ const AnalyticsTab = () => {
               Courses by Category
             </Typography>
             <Box sx={{ height: 300 }}>
-              <Doughnut data={coursesByCategoryChartData} options={doughnutOptions} />
+              <Doughnut
+                data={coursesByCategoryChartData}
+                options={doughnutOptions}
+              />
             </Box>
           </Paper>
         </Grid>
-
-
       </Grid>
     </Box>
   );

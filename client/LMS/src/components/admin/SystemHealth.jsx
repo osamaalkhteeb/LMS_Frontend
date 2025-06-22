@@ -14,9 +14,9 @@ import {
   LinearProgress,
   Box,
   Chip,
-  CircularProgress,
   Alert
 } from "@mui/material";
+import { CircleLoader } from 'react-spinners';
 import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { getSystemStats } from "../../services/systemService";
 
@@ -94,7 +94,7 @@ const SystemHealth = () => {
             
             {loading ? (
               <Box display="flex" justifyContent="center" py={4}>
-                <CircularProgress />
+                <CircleLoader size={50} color="#7f00ff" />
               </Box>
             ) : error ? (
               <Alert severity="error" sx={{ mb: 2 }}>
@@ -147,7 +147,7 @@ const SystemHealth = () => {
             
             {loading ? (
               <Box display="flex" justifyContent="center" py={2}>
-                <CircularProgress size={24} />
+                <CircleLoader size={24} color="#7f00ff" />
               </Box>
             ) : (
               <Box mb={3}>

@@ -47,9 +47,8 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   // Success handler
   (response) => {
-    // Calculate and log request duration
+    // Calculate request duration
     const duration = new Date() - response.config.metadata.startTime;
-    console.log(`Request took ${duration}ms`);
     return response;
   },
   // Error handler

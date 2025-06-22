@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   AppBar,
@@ -80,7 +81,10 @@ const Navigation = () => {
               onClick={handleMenu}
               color="inherit"
             >
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}>
+              <Avatar 
+                sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)' }}
+                src={user.avatar_url ? `${user.avatar_url.trim().replace(/`/g, '')}?t=${Date.now()}` : undefined}
+              >
                 {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
               </Avatar>
             </IconButton>

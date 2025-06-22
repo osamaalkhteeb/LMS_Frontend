@@ -23,30 +23,78 @@ import {
   Tabs,
   Tab,
   Divider,
-  CircularProgress,
   Alert,
   Snackbar,
+  Paper,
+  Avatar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
+import { CircleLoader } from 'react-spinners';
 import {
-  Add,
-  Edit,
-  Delete,
-  PlayCircle,
-  Article,
-  Quiz,
-  Bookmark,
-  BookmarkBorder,
-  Star,
-  StarBorder,
-  Close as CloseIcon,
   Visibility as VisibilityIcon,
+  Close as CloseIcon,
+  Search as SearchIcon,
+  FilterAlt as FilterIcon,
 } from "@mui/icons-material";
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
+import { styled } from '@mui/material/styles';
+import { FiBook, FiAward, FiClock, FiTrendingUp } from "react-icons/fi";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
+// Modern styled components matching admin dashboard
+const ModernPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: "12px",
+  boxShadow: theme.shadows[2],
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+  },
+}));
+
+const ModernTabs = styled(Tabs)(({ theme }) => ({
+  "& .MuiTabs-indicator": {
+    height: "4px",
+    borderRadius: "2px",
+  },
+}));
+
+const ModernTab = styled(Tab)(({ theme }) => ({
+  textTransform: "none",
+  fontWeight: 500,
+  fontSize: "0.875rem",
+  minWidth: "unset",
+  padding: theme.spacing(1, 2),
+  "&.Mui-selected": {
+    color: theme.palette.primary.main,
+  },
+}));
+
+const ModernButton = styled(Button)(({ theme }) => ({
+  borderRadius: '20px',
+  textTransform: 'none',
+  fontWeight: 600,
+  padding: theme.spacing(1, 3),
+}));
+
+const ModernCard = styled(Card)(({ theme }) => ({
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  borderRadius: "12px",
+  boxShadow: theme.shadows[2],
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  '&:hover': {
+    transform: "translateY(-5px)",
+    boxShadow: theme.shadows[6],
+  },
+}));
+
 const CourseCatalog = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -226,8 +274,8 @@ const CourseCatalog = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="xl" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
+      <Container maxWidth="xl" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircleLoader size={60} color="#7f00ff" />
       </Container>
     );
   }
@@ -235,243 +283,379 @@ const CourseCatalog = () => {
   if (error) {
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ borderRadius: 2 }}>
+          {error}
+        </Alert>
       </Container>
     );
   }
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header and Filters */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 4 }}>
-        <Typography variant="h4" fontWeight="bold">
-          Course Catalog
-        </Typography>
-        <TextField
-          label="Search Courses"
-          variant="outlined"
-          size="small"
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Box>
-
-      {/* Category Tabs */}
-      <Tabs
-        value={tabValue}
-        onChange={(e, newValue) => setTabValue(newValue)}
-        sx={{ mb: 3 }}
-      >
-        {categories.map((category, index) => (
-          <Tab key={index} label={category.name} />
-        ))}
-      </Tabs>
-
-      {/* Course Grid */}
-      <Grid container spacing={3}>
-        <Grid size={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">
-              {filteredCourses.length} course{filteredCourses.length !== 1 ? 's' : ''} found
+      {/* Modern Header Section */}
+      <Box mb={4}>
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={3}
+          mb={4}
+          sx={{
+            p: 3,
+            borderRadius: "12px",
+            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+            color: "white",
+            boxShadow: theme.shadows[2],
+          }}
+        >
+          <Avatar
+            src={user?.avatar_url || ''}
+            sx={{
+              width: 72,
+              height: 72,
+              fontSize: "1.75rem",
+              bgcolor: "primary.dark",
+              border: "3px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            {user?.name
+              ?.split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </Avatar>
+          <Box>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Welcome to the Course Catalog, {user?.name || 'Student'}
             </Typography>
+            <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+              Browse and enroll in our wide range of courses
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Search and Filter Section */}
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-start', md: 'center' },
+          justifyContent: 'space-between',
+          gap: 3,
+          mb: 4
+        }}>
+          <TextField
+            fullWidth
+            sx={{ maxWidth: 400 }}
+            size="small"
+            placeholder="Search courses..."
+            variant="outlined"
+            InputProps={{
+              startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+              sx: { borderRadius: '50px', backgroundColor: 'background.paper' }
+            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FilterIcon color="action" />
+              <Typography variant="body2" color="text.secondary">
+                Sort by:
+              </Typography>
+            </Box>
             <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Sort by</InputLabel>
               <Select
                 value={sortBy}
-                label="Sort by"
                 onChange={(e) => setSortBy(e.target.value)}
+                sx={{ 
+                  borderRadius: '50px',
+                  '& .MuiSelect-select': { py: 1 }
+                }}
               >
                 <MenuItem value="title">Title</MenuItem>
-                <MenuItem value="students">Students</MenuItem>
+                <MenuItem value="students">Popularity</MenuItem>
               </Select>
             </FormControl>
           </Box>
-        </Grid>
+        </Box>
+      </Box>
+
+      {/* Modern Category Tabs */}
+      <ModernPaper sx={{ mb: 4 }}>
+        <ModernTabs
+          value={tabValue}
+          onChange={(e, newValue) => setTabValue(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+        >
+          {categories.map((category, index) => (
+            <ModernTab key={index} label={category.name} />
+          ))}
+        </ModernTabs>
+      </ModernPaper>
+
+      {/* Course Count */}
+      <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+        {filteredCourses.length} {filteredCourses.length === 1 ? 'Course' : 'Courses'} Available
+      </Typography>
+
+      {/* Modern Course Grid */}
         {filteredCourses.length === 0 ? (
-          <Grid size={12}>
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h6" color="text.secondary">
-                {searchTerm ? 'No courses found matching your search.' : 'No courses available.'}
-              </Typography>
-            </Box>
-          </Grid>
-        ) : (
-          filteredCourses.map((course) => {
+        <ModernPaper sx={{ 
+          p: 4, 
+          textAlign: 'center',
+        }}>
+          <Typography variant="h6" color="text.secondary">
+            {searchTerm ? 'No courses found matching your search.' : 'No courses available in this category.'}
+          </Typography>
+          {searchTerm && (
+            <ModernButton 
+              variant="outlined" 
+              sx={{ mt: 2 }}
+              onClick={() => setSearchTerm('')}
+            >
+              Clear search
+            </ModernButton>
+          )}
+        </ModernPaper>
+      ) : (
+        <Grid container spacing={3}>
+          {filteredCourses.map((course) => {
             const enrolled = isEnrolled(course.id);
             const categoryName = categories.find(cat => cat.id === course.category_id)?.name || 'Uncategorized';
             
             return (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={course.id}>
-                <Card
-                  sx={{ 
-                    height: "100%", 
-                    display: "flex", 
-                    flexDirection: "column",
-                    minHeight: '400px'
-                  }}
-                >
+              <Grid item xs={12} sm={6} md={4} lg={3} key={course.id}>
+                <ModernCard>
                   <CardMedia
                     component="img"
-                    height="160"
                     image={course.thumbnail_url || '/placeholder-course.jpg'}
                     alt={course.title}
                     sx={{ 
-                      objectFit: 'cover',
                       width: '100%',
-                      aspectRatio: '16/9'
+                      height: 160,
+                      objectFit: 'contain',
+                      backgroundColor: 'background.default',
+                      borderTopLeftRadius: '12px',
+                      borderTopRightRadius: '12px'
                     }}
                   />
+                  
                   <CardContent sx={{ flexGrow: 1 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                      <Chip label={categoryName} size="small" color="primary" clickable={false} />
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                      <Chip 
+                        label={categoryName} 
+                        size="small" 
+                        color="primary" 
+                        sx={{ 
+                          borderRadius: 1,
+                          fontWeight: 500
+                        }} 
+                      />
                       {enrolled && (
-                        <Chip label="Enrolled" size="small" color="success" variant="outlined" clickable={false} />
+                        <Chip 
+                          label="Enrolled" 
+                          size="small" 
+                          color="success" 
+                          variant="outlined"
+                          sx={{
+                            borderRadius: 1,
+                            fontWeight: 500
+                          }}
+                        />
                       )}
                     </Box>
+                    
                     <Typography
                       gutterBottom
                       variant="h6"
                       component="h3"
-                      sx={{ mt: 1 }}
+                      sx={{ 
+                        fontWeight: 600,
+                        mb: 1.5,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
                     >
                       {course.title}
                     </Typography>
 
-                    <Divider sx={{ my: 2 }} />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                       Instructor: {course.instructor_name || 'Unknown'}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      Students: {course.enrolled_count || 0} enrolled
+
+                    <Typography variant="body2" color="text.secondary">
+                      Students: {course.enrolled_count || 0}
                     </Typography>
                   </CardContent>
-                  <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
-                    <Button
+                  <CardActions sx={{ p: 2, pt: 0 }}>
+                    <ModernButton
                       size="small"
                       variant="outlined"
                       startIcon={<VisibilityIcon />}
                       onClick={() => handlePreview(course)}
+                      sx={{ flexGrow: 1 }}
                     >
                       Preview
-                    </Button>
-                    <Button
+                    </ModernButton>
+                    <ModernButton
                       size="small"
-                      variant={enrolled ? "outlined" : "contained"}
+                      variant="contained"
                       color={enrolled ? "success" : "primary"}
                       onClick={enrolled ? undefined : () => handleEnroll(course.id)}
                       disabled={enrolled}
+                      sx={{ 
+                        flexGrow: 1,
+                        '&.Mui-disabled': {
+                          backgroundColor: 'success.main',
+                          color: 'white'
+                        }
+                      }}
                     >
-                      {enrolled ? "Enrolled" : "Enroll"}
-                    </Button>
+                      {enrolled ? "Enrolled" : "Enroll Now"}
+                    </ModernButton>
                   </CardActions>
-                </Card>
+                </ModernCard>
               </Grid>
             );
-          })
-        )}
-      </Grid>
+          })}
+        </Grid>
+      )}
 
-      {/* Course Preview Dialog */}
+      {/* Modern Course Preview Dialog */}
       <Dialog
         open={previewDialog.open}
         onClose={handleClosePreview}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
       >
         {previewDialog.course && (
           <>
-            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h5" component="div">
+            <DialogTitle sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              pb: 1,
+              borderBottom: '1px solid',
+              borderColor: 'divider'
+            }}>
+              <Typography variant="h5" component="div" fontWeight="bold">
                 {previewDialog.course.title}
               </Typography>
-              <IconButton onClick={handleClosePreview}>
+              <IconButton onClick={handleClosePreview} size="small">
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
-            <DialogContent>
-              <Box sx={{ mb: 3 }}>
+            <DialogContent sx={{ pt: 3 }}>
+              <Box sx={{ 
+                mb: 3,
+                borderRadius: 2,
+                overflow: 'hidden',
+                position: 'relative',
+                backgroundColor: 'background.default',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: { xs: 200, sm: 300 }
+              }}>
                 <img
                   src={previewDialog.course.thumbnail_url || '/placeholder-course.jpg'}
                   alt={previewDialog.course.title}
                   style={{ 
-                    width: '100%', 
-                    maxHeight: '400px',
+                    maxWidth: '100%',
+                    maxHeight: '100%',
                     objectFit: 'contain',
-                    borderRadius: '8px',
-                    margin: '0 auto',
-                    display: 'block'
                   }}
                 />
               </Box>
               
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Course Information
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Instructor:</strong> {previewDialog.course.instructor_name || 'Unknown'}
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={8}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      Course Description
                     </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Category:</strong> {categories.find(cat => cat.id === previewDialog.course.category_id)?.name || 'Uncategorized'}
+                    <Typography variant="body1" paragraph>
+                      {previewDialog.course.description || 'No description available.'}
                     </Typography>
-                  </Grid>
-                  {previewDialog.course.created_at && (
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        <strong>Created:</strong> {new Date(previewDialog.course.created_at).toLocaleDateString()}
-                      </Typography>
-                    </Grid>
-                  )}
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Students:</strong> {previewDialog.course.enrolled_count || 0} enrolled
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <strong>Status:</strong> 
-                      <Chip 
-                        label={isEnrolled(previewDialog.course.id) ? "Enrolled" : "Available"} 
-                        size="small" 
-                        color={isEnrolled(previewDialog.course.id) ? "success" : "primary"} 
-                        sx={{ ml: 1 }}
-                      />
-                    </Typography>
-                  </Grid>
+                  </Box>
                 </Grid>
-              </Box>
-
-              {previewDialog.course.description && (
-                 <Box sx={{ mb: 3 }}>
-                   <Typography variant="h6" gutterBottom>
-                     Course Description
-                   </Typography>
-                   <Typography variant="body1" paragraph>
-                     {previewDialog.course.description}
-                   </Typography>
-                 </Box>
-               )}
+                
+                <Grid item xs={12} md={4}>
+                  <ModernPaper elevation={0} sx={{ p: 3 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                      Course Details
+                    </Typography>
+                    
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                        Instructor:
+                      </Typography>
+                      <Typography variant="body1">
+                        {previewDialog.course.instructor_name || 'Unknown'}
+                      </Typography>
+                    </Box>
+                    
+                    <Divider sx={{ my: 2 }} />
+                    
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          Category:
+                        </Typography>
+                        <Chip 
+                          label={categories.find(cat => cat.id === previewDialog.course.category_id)?.name || 'Uncategorized'}
+                          size="small"
+                          color="primary"
+                          sx={{ borderRadius: 1 }}
+                        />
+                      </Grid>
+                      
+                      <Grid item xs={6}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          Students:
+                        </Typography>
+                        <Typography variant="body1">
+                          {previewDialog.course.enrolled_count || 0}
+                        </Typography>
+                      </Grid>
+                      
+                      <Grid item xs={6}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          Status:
+                        </Typography>
+                        <Chip 
+                          label={isEnrolled(previewDialog.course.id) ? "Enrolled" : "Available"} 
+                          size="small" 
+                          color={isEnrolled(previewDialog.course.id) ? "success" : "primary"} 
+                        />
+                      </Grid>
+                    </Grid>
+                  </ModernPaper>
+                </Grid>
+              </Grid>
             </DialogContent>
-            <DialogActions sx={{ p: 3 }}>
-              <Button onClick={handleClosePreview} variant="outlined">
-                Close
-              </Button>
-              <Button
-                variant="contained"
-                color={isEnrolled(previewDialog.course.id) ? "success" : "primary"}
-                onClick={() => {
-                  if (!isEnrolled(previewDialog.course.id)) {
-                    handleEnroll(previewDialog.course.id);
-                  }
-                  handleClosePreview();
-                }}
-                disabled={isEnrolled(previewDialog.course.id)}
+            <DialogActions sx={{ p: 3, gap: 2 }}>
+              <ModernButton 
+                onClick={() => setPreviewDialog({ open: false, course: null })}
+                variant="outlined"
+                color="inherit"
               >
-                {isEnrolled(previewDialog.course.id) ? "Already Enrolled" : "Enroll Now"}
-              </Button>
+                Close
+              </ModernButton>
+              {!isEnrolled(previewDialog.course.id) && (
+                <ModernButton 
+                  onClick={() => handleEnroll(previewDialog.course.id)}
+                  variant="contained"
+                  color="primary"
+                  sx={{ minWidth: 120 }}
+                >
+                  Enroll Now
+                </ModernButton>
+              )}
             </DialogActions>
           </>
         )}

@@ -153,11 +153,11 @@ export const useQuizManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const createNewQuiz = useCallback(async (lessonId, quizData) => {
+  const createNewQuiz = useCallback(async (courseId, lessonId, quizData) => {
     try {
       setLoading(true);
       setError(null);
-      const newQuiz = await createQuiz(lessonId, quizData);
+      const newQuiz = await createQuiz(courseId, lessonId, quizData);
       return newQuiz;
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.response?.data?.data?.message || err.response?.data?.error || err.response?.statusText || err.message || 'Failed to create quiz';

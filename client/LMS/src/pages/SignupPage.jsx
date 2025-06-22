@@ -3,17 +3,16 @@ import React, { useState } from 'react';
 import { 
   Container,
   Box,
-  Grid,
   Typography,
   TextField,
   Button,
   Link,
-  Paper,
   Alert,
-  CircularProgress,
-  IconButton
+  IconButton,
+  Divider
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ClockLoader } from 'react-spinners';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useFormHandler } from '../hooks/useFormHandler';
@@ -74,39 +73,41 @@ const SignupPage = () => {
     });
   };
 
-  const handleBackToHome = () => {
-    navigate('/');
-  };
 
   return (
     <Container 
       maxWidth={false} 
+      disableGutters
       sx={{ 
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 2,
-        backgroundColor: '#f8f9fa'
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        py: 4
       }}
     >
-      <Grid 
-        container 
-        spacing={4} 
-        alignItems="center" 
-        justifyContent="center"
-        sx={{ 
+      <Box
+        sx={{
+          display: 'flex',
+          width: '90%',
           maxWidth: '1200px',
-          width: '100%'
+          minHeight: '600px',
+          borderRadius: 4,
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+          backgroundColor: 'background.paper'
         }}
       >
         {/* Image Section */}
-        <Grid 
-          size={{ xs: 12, md: 6 }}
+        <Box
           sx={{
-            display: 'flex',
+            display: { xs: 'none', md: 'flex' },
+            width: '50%',
+            alignItems: 'center',
             justifyContent: 'center',
-            alignItems: 'center'
+            p: 4,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
           }}
         >
           <Box
@@ -114,157 +115,157 @@ const SignupPage = () => {
             src={signupImage}
             alt="Sign up illustration"
             sx={{ 
-              width: { xs: '70%', sm: '60%', md: '90%' },
-              maxWidth: '500px',
+              width: '100%',
               height: 'auto',
-              objectFit: 'contain'
+              maxWidth: '500px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))'
             }}
           />
-        </Grid>
+        </Box>
         
         {/* Form Section */}
-        <Grid 
-          size={{ xs: 12, md: 6 }}
+        <Box
           sx={{
+            width: { xs: '100%', md: '50%' },
             display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
-            alignItems: 'center'
+            p: { xs: 4, sm: 6 },
+            position: 'relative'
           }}
         >
-          <Paper
-            elevation={3}
-            sx={{
-              width: '100%',
-              maxWidth: 450,
-              p: { xs: 3, sm: 4 },
-              mx: { xs: 2, sm: 0 },
-              borderRadius: 2,
-              position: 'relative'
-            }}
-          >
-            {/* Back Button */}
-            <IconButton
-              onClick={handleBackToHome}
-              sx={{
-                position: 'absolute',
-                top: 16,
-                left: 16,
-                color: 'primary.main'
-              }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
+          
 
+          <Box sx={{ width: '100%', maxWidth: '450px' }}>
             <Typography
-              variant="h4"
+              variant="h3"
               component="h1"
-              align="center"
               gutterBottom
               sx={{
-                mb: 4,
-                fontWeight: 600,
-                color: 'primary.main',
-                fontSize: { xs: '1.8rem', sm: '2rem' }
+                mb: 3,
+                fontWeight: 700,
+                color: 'text.primary',
+                fontSize: { xs: '1.8rem', sm: '2.2rem' },
+                textAlign: 'center'
               }}
             >
-              Create an Account
+              Create Account
+            </Typography>
+
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{
+                mb: 4,
+                textAlign: 'center',
+                fontSize: { xs: '1rem', sm: '1.1rem' }
+              }}
+            >
+              Join our community today
             </Typography>
 
             {submitError && (
-              <Alert severity="error" sx={{ mb: 3 }}>
+              <Alert severity="error" sx={{ mb: 4 }}>
                 {submitError}
               </Alert>
             )}
             
             {submitSuccess && (
-              <Alert severity="success" sx={{ mb: 3 }}>
+              <Alert severity="success" sx={{ mb: 4 }}>
                 {submitSuccess}
               </Alert>
             )}
 
             <Box component="form" onSubmit={onSubmit} noValidate>
-              {/* Name */}
               <TextField
-                margin="normal"
-                required
                 fullWidth
-                id="name"
-                label="Name"
+                label="Full Name"
                 name="name"
-                placeholder="Enter your full name"
                 value={formData.name}
                 onChange={handleChange}
-                autoComplete="name"
-                autoFocus
-                size="medium"
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
+                variant="outlined"
                 disabled={loading || isSubmitting}
                 error={!!errors.name}
                 helperText={errors.name}
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
-              {/* Email */}
               <TextField
-                margin="normal"
-                required
                 fullWidth
-                id="email"
-                label="Email"
+                label="Email Address"
                 name="email"
                 type="email"
-                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                autoComplete="email"
-                size="medium"
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
+                variant="outlined"
                 disabled={loading || isSubmitting}
                 error={!!errors.email}
                 helperText={errors.email}
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
-              {/* Password */}
               <TextField
-                margin="normal"
-                required
                 fullWidth
-                id="password"
-                label="Password"
+                label="Password (min 6 characters)"
                 name="password"
                 type="password"
-                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                autoComplete="new-password"
-                size="medium"
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
+                variant="outlined"
                 disabled={loading || isSubmitting}
                 error={!!errors.password}
                 helperText={errors.password}
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
-              {/* Confirm Password */}
               <TextField
-                margin="normal"
-                required
                 fullWidth
-                id="confirmPassword"
                 label="Confirm Password"
                 name="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                autoComplete="new-password"
-                size="medium"
-                sx={{ mb: 2 }}
+                sx={{ mb: 4 }}
+                variant="outlined"
                 disabled={loading || isSubmitting}
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword}
+                InputProps={{
+                  sx: {
+                    borderRadius: 1,
+                    '& fieldset': {
+                      borderColor: 'divider'
+                    }
+                  }
+                }}
               />
 
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 fullWidth
@@ -272,54 +273,56 @@ const SignupPage = () => {
                 size="large"
                 disabled={loading || isSubmitting}
                 sx={{ 
-                  mt: 2,
-                  mb: 3,
                   py: 1.5,
-                  fontSize: { xs: '1rem', sm: '1.1rem' },
+                  mb: 3,
+                  fontSize: '1.1rem',
                   fontWeight: 600,
-                  textTransform: 'none',
-                  borderRadius: 2,
-                  boxShadow: 2,
+                  borderRadius: 1,
+                  boxShadow: 'none',
                   '&:hover': {
-                    boxShadow: 4
+                    boxShadow: 'none'
                   }
                 }}
               >
                 {(loading || isSubmitting) ? (
-                  <CircularProgress size={24} color="inherit" />
+                  <ClockLoader size={24} color="#ffffff" />
                 ) : (
                   'Sign Up'
                 )}
               </Button>
 
-              {/* Login Link */}
-              <Typography 
-                variant="body2" 
-                align="center"
-                sx={{ 
-                  fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                  fontWeight: 500
-                }}
-              >
-                Already have an account?{' '}
-                <Link 
-                  href="/login" 
-                  color="error"
+              <Divider sx={{ my: 3 }}>or</Divider>
+
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <Typography 
+                  variant="body2" 
                   sx={{ 
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    '&:hover': {
-                      textDecoration: 'underline'
-                    }
+                    fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                    fontWeight: 500,
+                    color: 'text.secondary'
                   }}
                 >
-                  Login
-                </Link>
-              </Typography>
+                  Already have an account?{' '}
+                  <Link 
+                    component="button"
+                    onClick={() => navigate('/login')}
+                    sx={{ 
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      color: 'primary.main',
+                      '&:hover': {
+                        textDecoration: 'underline'
+                      }
+                    }}
+                  >
+                    Sign In
+                  </Link>
+                </Typography>
+              </Box>
             </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+          </Box>
+        </Box>
+      </Box>
     </Container>
   );
 };

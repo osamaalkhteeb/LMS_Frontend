@@ -172,6 +172,9 @@ const SortableModule = ({
   };
 
   const getLessonDetails = (lesson) => {
+    if (lesson.content_type === 'quiz' || lesson.type === 'quiz') {
+      return 'Quiz';
+    }
     if (lesson.questions) return `${lesson.questions} questions`;
     if (lesson.points) return `${lesson.points} points`;
     return "";

@@ -1,57 +1,29 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css'
 import { AuthProvider } from './components/AuthProvider'
 import AppRouter from './router/AppRouter'
-import { useTheme } from '@mui/material/styles';
-import {
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
-  Box,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { CssBaseline } from "@mui/material";
 import DebugHooks from './components/DebugHooks';
+import { ThemeProvider, useThemeContext } from './contexts/ThemeContext.jsx';
 
-function App() {
-  const [mode, setMode] = useState("light");
-
-  const theme = createTheme({
-    palette: {
-      mode: mode,
-      primary: {
-        main: "#4169E1",
-        light: "#6A89FF",
-        dark: "#27408B",
-        contrastText: "#FFFFFF",
-      },
-      background: {
-        default: mode === "light" ? "#FFFFFF" : "#121212",
-        paper: mode === "light" ? "#F5F5F5" : "#1E1E1E",
-      },
-    },
-  });
-
-  const toggleDarkMode = () => {
-    setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
-  };
-
+// Inner App component that uses theme context
+const AppContent = () => {
   return (
-    // <ThemeProvider theme={theme}>
-    //   <CssBaseline />
-    //   <AuthProvider>
-    //     {/* Temporarily show only DebugHooks */}
-    //     <DebugHooks />
-    //   </AuthProvider>
-    // </ThemeProvider>
-    
-    // Original app (commented out for testing)
-    <ThemeProvider theme={theme}>
+    <>
       <CssBaseline />
       <AuthProvider>
-        <AppRouter mode={mode} toggleDarkMode={toggleDarkMode} />
+        <AppRouter />
       </AuthProvider>
+    </>
+  );
+};
+
+// Main App component that provides theme context
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }

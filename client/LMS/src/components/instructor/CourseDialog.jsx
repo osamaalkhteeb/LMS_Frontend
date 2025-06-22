@@ -12,9 +12,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
   Alert
 } from "@mui/material";
+import { ClockLoader } from 'react-spinners';
 import {
   CloudUpload as UploadIcon
 } from "@mui/icons-material";
@@ -282,7 +282,7 @@ const CourseDialog = ({
           variant="contained"
           color={dialogType === "delete" ? "error" : "primary"}
           disabled={loading}
-          startIcon={loading && <CircularProgress size={20} />}
+          startIcon={loading && <ClockLoader size={20} color="#ffffff" />}
         >
           {getActionButtonText()}
         </Button>

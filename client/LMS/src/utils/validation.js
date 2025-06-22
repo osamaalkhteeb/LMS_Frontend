@@ -331,7 +331,9 @@ export const validateUserProfile = (userData, isRegistration = false) => {
   
   // Validate avatar_url if provided - backend: Joi.string().uri().optional().allow("")
   if (userData.avatar_url && userData.avatar_url.trim() !== '') {
-    const urlValidation = validateUrl(userData.avatar_url, 'Avatar URL');
+    // Clean the URL before validation (remove backticks and trim)
+    const cleanUrl = userData.avatar_url.trim().replace(/`/g, '');
+    const urlValidation = validateUrl(cleanUrl, 'Avatar URL');
     if (!urlValidation.success) errors.push(urlValidation.message);
   }
   
@@ -437,9 +439,9 @@ export const validateLesson = (lessonData, isUpdate = false) => {
     errors.push('Lesson content type is required');
   }
   
-  // Validate contentUrl - backend: conditional validation based on contentType
-  if (lessonData.contentType === 'video' && lessonData.contentUrl) {
-    const urlValidation = validateUrl(lessonData.contentUrl, 'Content URL');
+  // Validate content - backend: conditional validation based on contentType
+  if (lessonData.contentType === 'video' && lessonData.content) {
+    const urlValidation = validateUrl(lessonData.content, 'Content URL');
     if (!urlValidation.success) errors.push(urlValidation.message);
   }
   

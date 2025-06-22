@@ -29,8 +29,8 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  CircularProgress,
 } from "@mui/material";
+import { ClockLoader } from "react-spinners";
 import {
   Close,
   ExpandMore,
@@ -1034,7 +1034,7 @@ const CourseDetailsView = ({ selectedCourse, onBack, onProgressUpdate }) => {
                 variant="contained"
                 onClick={handleSubmitAssignment}
                 disabled={(!assignmentSubmission.trim() && !submissionFile) || submitting}
-                startIcon={submitting ? <CircularProgress size={16} /> : <UploadIcon />}
+                startIcon={submitting ? <ClockLoader size={16} color="#ffffff" /> : <UploadIcon />}
               >
                 {submitting ? 'Submitting...' : 'Submit Assignment'}
               </Button>

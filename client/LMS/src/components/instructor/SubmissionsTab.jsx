@@ -11,7 +11,6 @@ import {
   Paper,
   Chip,
   Button,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -25,6 +24,7 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
+import { ClockLoader } from 'react-spinners';
 import { 
   Visibility, 
   Grade, 
@@ -145,7 +145,7 @@ const SubmissionsTab = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
+        <ClockLoader size={20} color="#1976d2" />
       </Box>
     );
   }
@@ -288,7 +288,7 @@ const SubmissionsTab = () => {
         <DialogContent>
           {submissionsLoading ? (
             <Box display="flex" justifyContent="center" p={3}>
-              <CircularProgress />
+              <ClockLoader size={50} color="#1976d2" />
             </Box>
           ) : submissions.length > 0 ? (
             <TableContainer>
@@ -447,7 +447,7 @@ const SubmissionsTab = () => {
             variant="contained"
             disabled={!gradeForm.grade || grading || gradeForm.grade > 100 || gradeForm.grade < 0}
           >
-            {grading ? <CircularProgress size={20} /> : 'Submit Grade'}
+            {grading ? <ClockLoader size={20} color="#1976d2" /> : 'Submit Grade'}
           </Button>
         </DialogActions>
       </Dialog>

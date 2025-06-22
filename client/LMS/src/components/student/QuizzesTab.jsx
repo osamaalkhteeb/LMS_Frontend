@@ -12,13 +12,13 @@ import {
   TableBody,
   Button,
   Chip,
-  CircularProgress,
   Alert,
   Box,
   IconButton,
   Tooltip,
   LinearProgress,
 } from "@mui/material";
+import { ClockLoader } from 'react-spinners';
 import {
   Quiz as QuizIcon,
   PlayArrow as StartIcon,
@@ -115,11 +115,6 @@ const QuizzesTab = ({ enrolledCourses }) => {
       const score = quiz.best_attempt.score;
       const totalScore = quiz.best_attempt.total_score || 100;
       
-      // Show "Failed" for 0 scores instead of "0/100"
-      if (score === 0) {
-        return 'Failed';
-      }
-      
       return `${score}/${totalScore}`;
     }
     return 'Not taken';
@@ -140,7 +135,7 @@ const QuizzesTab = ({ enrolledCourses }) => {
       <Card sx={{ borderRadius: 2 }}>
         <CardContent>
           <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-            <CircularProgress />
+            <ClockLoader size={50} color="#1976d2" />
           </Box>
         </CardContent>
       </Card>
@@ -241,7 +236,7 @@ const QuizzesTab = ({ enrolledCourses }) => {
                           <Box sx={{ mt: 0.5 }}>
                             <LinearProgress 
                               variant="determinate" 
-                              value={(quiz.best_attempt.score / (quiz.best_attempt.total_score || 100)) * 100} 
+                              value={Math.min(100, Math.max(0, (quiz.best_attempt.score / (quiz.best_attempt.total_score || 100)) * 100))} 
                               sx={{ 
                                 height: 4, 
                                 borderRadius: 2,
@@ -254,7 +249,7 @@ const QuizzesTab = ({ enrolledCourses }) => {
                               variant="caption" 
                               color={quiz.best_attempt.score === 0 ? 'error' : 'text.secondary'}
                             >
-                              {quiz.best_attempt.score === 0 ? '0%' : Math.round((quiz.best_attempt.score / (quiz.best_attempt.total_score || 100)) * 100) + '%'}
+                              {Math.round((quiz.best_attempt.score / (quiz.best_attempt.total_score || 100)) * 100)}%
                             </Typography>
                           </Box>
                         )}
