@@ -14,7 +14,6 @@ A modern, responsive Learning Management System frontend built with React, Vite,
 - **Form Handling**: React Hook Form 7.43.5
 - **Charts**: Chart.js with React Chart.js 2
 - **Icons**: Material-UI Icons, Heroicons, React Icons, Lucide React
-- **Notifications**: React Hot Toast
 - **Drag & Drop**: DnD Kit
 - **Styling**: Emotion (CSS-in-JS)
 
