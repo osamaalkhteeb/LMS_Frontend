@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Box, CircularProgress, Alert } from '@mui/material';
+import { Box, Alert } from '@mui/material';
+import { ClockLoader } from 'react-spinners';
 import { useAuth } from '../hooks/useAuth';
 import apiClient from '../services/apiClient';
 
@@ -85,7 +86,7 @@ const OAuthCallback = () => {
         gap: 2
       }}
     >
-      <CircularProgress />
+      <ClockLoader size={50} color="#1976d2" />
       <p>Completing authentication...</p>
     </Box>
   );

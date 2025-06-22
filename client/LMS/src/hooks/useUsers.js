@@ -95,12 +95,37 @@ export const useUserProfile = () => {
       const result = await changePassword(passwordData);
       return result;
     } catch (err) {
-      // Extract the specific error message from the server response
-      const errorMessage = err.response?.data?.message || 
-                           err.response?.data?.data?.message || 
-                           err.response?.data?.error || 
-                           err.message || 
-                           'Failed to change password';
+      console.error('Password update error:', err);
+      
+      let errorMessage;
+      
+      // Handle network errors
+      if (!err.response) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      // Handle validation errors (400 status)
+      else if (err.response.status === 400) {
+        errorMessage = err.response?.data?.message || 
+                       err.response?.data?.data?.message || 
+                       'Invalid password data. Please check your input.';
+      }
+      // Handle authentication errors (401 status)
+      else if (err.response.status === 401) {
+        errorMessage = 'Session expired. Please log in again.';
+      }
+      // Handle server errors (500 status)
+      else if (err.response.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      }
+      // Handle other errors
+      else {
+        errorMessage = err.response?.data?.message || 
+                       err.response?.data?.data?.message || 
+                       err.response?.data?.error || 
+                       err.message || 
+                       'Failed to change password';
+      }
+      
       setError(errorMessage);
       throw err;
     } finally {

@@ -11,11 +11,11 @@ import {
   Button,
   Chip,
   Avatar,
-  CircularProgress,
   Alert,
   Card,
   CardContent,
 } from "@mui/material";
+import { ClockLoader } from 'react-spinners';
 import { CheckCircle } from "@mui/icons-material";
 import { getPendingCourses, approveCourse } from "../../services/courseService";
 
@@ -86,7 +86,7 @@ const CourseApprovals = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      <CircularProgress />
+                      <ClockLoader size={50} color="#1976d2" />
                     </TableCell>
                   </TableRow>
                 ) : error ? (

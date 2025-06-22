@@ -17,6 +17,16 @@ export const createLesson = async (courseId, moduleId, lessonData, isFormData = 
     console.error('Error creating lesson:', error);
     console.error('Error response:', error.response?.data);
     console.error('Error status:', error.response?.status);
+    
+    // Enhance error with more specific information
+    if (error.response?.data) {
+      const enhancedError = new Error(error.response.data.message || 'Failed to create lesson');
+      enhancedError.response = error.response;
+      enhancedError.status = error.response.status;
+      enhancedError.data = error.response.data;
+      throw enhancedError;
+    }
+    
     throw error;
   }
 };

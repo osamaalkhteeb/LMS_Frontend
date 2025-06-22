@@ -51,7 +51,7 @@ export const useInstructorAnalytics = () => {
         const completedLessonsResponse = await getAllCompletedLessonsByCourse(course.id);
         const completedLessons = Array.isArray(completedLessonsResponse) ? completedLessonsResponse : [];
           
-          // Calculate completion rate based on lesson completions
+          // Calculate completion rate as percentage of students who completed the entire course
           let completionRate = 0;
           if (totalLessons > 0 && totalEnrollments > 0) {
             // Group completions by user to count unique students who completed lessons
@@ -63,27 +63,40 @@ export const useInstructorAnalytics = () => {
               completionsByUser[completion.user_id].add(completion.lesson_id);
             });
             
-            // Calculate average completion rate across all enrolled students
-            const userCompletionRates = Object.values(completionsByUser).map(userLessons => 
-              (userLessons.size / totalLessons) * 100
-            );
+            // Count students who completed ALL lessons (100% completion)
+            const fullyCompletedStudents = Object.values(completionsByUser).filter(userLessons => 
+              userLessons.size >= totalLessons
+            ).length;
             
-            // Add students with 0% completion (those not in completionsByUser)
-            const studentsWithCompletions = Object.keys(completionsByUser).length;
-            const studentsWithoutCompletions = totalEnrollments - studentsWithCompletions;
-            for (let i = 0; i < studentsWithoutCompletions; i++) {
-              userCompletionRates.push(0);
-            }
-            
-            completionRate = userCompletionRates.reduce((sum, rate) => sum + rate, 0) / totalEnrollments;
+            // Completion rate = percentage of students who completed the entire course
+            completionRate = (fullyCompletedStudents / totalEnrollments) * 100;
           }
           
           // Calculate active students (students who have completed at least one lesson)
           const activeStudents = completedLessons.length > 0 ? new Set(completedLessons.map(c => c.user_id)).size : 0;
           
-          // For avgScore, we'll use a placeholder since we don't have grade data readily available
-          // This could be enhanced later with assignment submission grades
-          const avgScore = completionRate > 0 ? Math.floor(completionRate * 0.8 + 20) : 0; // Rough estimate
+          // Calculate average progress across all students
+          let avgScore = 0;
+          if (totalLessons > 0 && totalEnrollments > 0) {
+            // Group completions by user to calculate individual progress
+            const completionsByUser = {};
+            completedLessons.forEach(completion => {
+              if (!completionsByUser[completion.user_id]) {
+                completionsByUser[completion.user_id] = new Set();
+              }
+              completionsByUser[completion.user_id].add(completion.lesson_id);
+            });
+            
+            // Calculate progress for each enrolled student
+            let totalProgress = 0;
+            enrollments.forEach(enrollment => {
+              const userCompletions = completionsByUser[enrollment.user_id] || new Set();
+              const userProgress = (userCompletions.size / totalLessons) * 100;
+              totalProgress += userProgress;
+            });
+            
+            avgScore = totalProgress / totalEnrollments;
+          }
           
           return {
             id: course.id,
@@ -104,7 +117,7 @@ export const useInstructorAnalytics = () => {
             completionRate: 0,
             avgScore: 0,
             activeStudents: 0,
-            totalEnrollments: course.enrolled_count || 0,
+            totalEnrollments: parseInt(course.enrolled_count || course.enrolled_students || 0),
             publishedStatus: course.is_published,
             approvedStatus: course.is_approved
           };
@@ -123,6 +136,7 @@ export const useInstructorAnalytics = () => {
           : 0
       };
       
+
 
       setAnalytics(result);
     } catch (err) {
@@ -351,10 +365,7 @@ export const useAdminAnalytics = () => {
         getCourseTrend().catch(() => null) // Real course trend data
       ]);
       
-      console.log('useAdminAnalytics - API responses:');
-      console.log('coursesByCategory from API:', coursesByCategory);
-      console.log('coursesByCategory type:', typeof coursesByCategory);
-      console.log('coursesByCategory isArray:', Array.isArray(coursesByCategory));
+
       
       
       // Use real trend data from database
@@ -394,10 +405,7 @@ export const useAdminAnalytics = () => {
         coursesByCategory: coursesByCategory || []
       };
       
-      console.log('useAdminAnalytics - Final result object:');
-      console.log('result.coursesByCategory:', result.coursesByCategory);
-      console.log('result.coursesByCategory type:', typeof result.coursesByCategory);
-      console.log('result.coursesByCategory isArray:', Array.isArray(result.coursesByCategory));
+
       
       setAnalytics(result);
     } catch (err) {

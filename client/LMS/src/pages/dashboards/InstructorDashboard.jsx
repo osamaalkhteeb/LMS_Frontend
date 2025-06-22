@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -6,7 +7,6 @@ import {
   Paper,
   Tabs,
   Tab,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -19,9 +19,15 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  useTheme,
+  useMediaQuery,
+  Avatar,
+  styled
 } from "@mui/material";
+import { ClockLoader } from "react-spinners";
 import { MoreVert as MoreIcon } from "@mui/icons-material";
+import { FiBook, FiUsers, FiTrendingUp } from "react-icons/fi";
 import InstructorProfile from "../../components/instructor/InstructorProfile";
 import StatCard from "../../components/instructor/StatsCard";
 import CoursesTab from "../../components/instructor/CoursesTab";
@@ -40,7 +46,36 @@ import { getInstructorCourses } from "../../services/courseService";
 import { getEnrollmentsByCourse } from "../../services/enrollmentService";
 import { useInstructorAnalytics } from "../../hooks/useAnalytics";
 
+const ModernPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: "12px",
+  boxShadow: theme.shadows[2],
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+  },
+}));
+
+const ModernTabs = styled(Tabs)(({ theme }) => ({
+  "& .MuiTabs-indicator": {
+    height: "4px",
+    borderRadius: "2px",
+  },
+}));
+
+const ModernTab = styled(Tab)(({ theme }) => ({
+  textTransform: "none",
+  fontWeight: 500,
+  fontSize: "0.875rem",
+  minWidth: "unset",
+  padding: theme.spacing(1, 2),
+  "&.Mui-selected": {
+    color: theme.palette.primary.main,
+  },
+}));
+
 const InstructorDashboard = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTab, setSelectedTab] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -195,7 +230,7 @@ const InstructorDashboard = () => {
   // Refresh both data sets
   const handleRefreshAll = () => {
     fetchInstructorData();
-    fetchAnalyticsData();
+    refetchAnalytics();
   };
 
   const handleTabChange = (event, newValue) => {
@@ -254,16 +289,54 @@ const InstructorDashboard = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <InstructorProfile instructor={instructor} />
+      {/* Modern Header Section */}
+      <Box mb={4}>
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={3}
+          mb={4}
+          sx={{
+            p: 3,
+            borderRadius: "12px",
+            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+            color: "white",
+            boxShadow: theme.shadows[2],
+          }}
+        >
+          <Avatar
+            src={instructor.avatar || ''}
+            sx={{
+              width: 72,
+              height: 72,
+              fontSize: "1.75rem",
+              bgcolor: "primary.dark",
+              border: "3px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            {instructor.name
+              ?.split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </Avatar>
+          <Box>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Welcome back, {instructor.name}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+              Manage your courses and track student progress
+            </Typography>
+          </Box>
+        </Box>
 
-      {/* Stats Cards */}
+        {/* Modern Stats Cards */}
       {dashboardData.loading ? (
-        <Grid container spacing={3} mb={4}>
+        <Grid container spacing={isMobile ? 2 : 3} mb={4}>
           {[...Array(3)].map((_, i) => (
             <Grid item xs={12} sm={6} md={4} key={i}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Box sx={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
+                  <ClockLoader size={24} color="#1976d2" />
                 </Box>
               </Paper>
             </Grid>
@@ -274,47 +347,51 @@ const InstructorDashboard = () => {
           {dashboardData.error}
         </Alert>
       ) : (
-        <Grid container spacing={3} mb={4}>
+        <Grid container spacing={isMobile ? 2 : 3} mb={4}>
           <Grid item xs={12} sm={6} md={4}>
             <StatCard 
               title="Total Courses" 
               value={dashboardData.stats.totalCourses} 
-              icon={BookIcon}
+              icon={FiBook}
               color="primary"
+              variant="gradient"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <StatCard 
               title="Total Students" 
               value={dashboardData.stats.totalStudents} 
-              icon={PeopleIcon}
+              icon={FiUsers}
               color="success"
+              variant="gradient"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <StatCard 
               title="Active Courses" 
               value={dashboardData.stats.activeCourses} 
-              icon={BookIcon}
+              icon={FiTrendingUp}
               color="info"
+              variant="gradient"
             />
           </Grid>
         </Grid>
       )}
+      </Box>
 
-      {/* Tabs Section */}
-      <Paper sx={{ borderRadius: 2, mb: 4 }}>
-        <Tabs 
+      {/* Modern Tabs Section */}
+      <ModernPaper sx={{ mb: 4 }}>
+        <ModernTabs 
           value={selectedTab} 
           onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"
         >
-          <Tab label="Courses" />
-          <Tab label="Submissions" />
-          <Tab label="Analytics" />
-        </Tabs>
-      </Paper>
+          <ModernTab label="Courses" />
+          <ModernTab label="Submissions" />
+          <ModernTab label="Analytics" />
+        </ModernTabs>
+      </ModernPaper>
 
       {/* Tab Content */}
       {selectedTab === 0 && (
@@ -346,6 +423,7 @@ ve            error={dashboardData.error}
           analytics={analyticsData}
           loading={analyticsLoading}
           error={analyticsError}
+          onRefresh={refetchAnalytics}
         />
       )}
 

@@ -15,11 +15,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  CircularProgress,
   Grid,
   IconButton,
   Chip
 } from '@mui/material';
+import { CircleLoader } from 'react-spinners';
 import {
   Timer as TimerIcon,
   Quiz as QuizIcon,
@@ -159,11 +159,17 @@ const QuizTakingPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+        }}
+      >
+        <CircleLoader size={50} color="#7f00ff" />
+      </Box>
     );
   }
 
@@ -171,8 +177,27 @@ const QuizTakingPage = () => {
     const isNotFound = error && (error.includes('404') || error.includes('not found'));
     
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          p: 3
+        }}
+      >
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            textAlign: 'center',
+            maxWidth: 600,
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
           <QuizIcon sx={{ fontSize: 64, color: 'error.main', mb: 2 }} />
           <Typography variant="h5" gutterBottom>
             {isNotFound ? 'Quiz Not Found' : 'Error Loading Quiz'}
@@ -188,32 +213,74 @@ const QuizTakingPage = () => {
               startIcon={<BackIcon />} 
               onClick={() => navigate(-1)}
               variant="outlined"
+              sx={{
+                py: 1.5,
+                px: 3,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600
+              }}
             >
               Go Back
             </Button>
             <Button 
               onClick={() => navigate('/dashboard/student?tab=2')}
               variant="contained"
+              sx={{
+                py: 1.5,
+                px: 3,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': {
+                  boxShadow: 'none',
+                  opacity: 0.9
+                }
+              }}
             >
               View All Quizzes
             </Button>
           </Box>
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
   if (!quizStarted) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          p: 3
+        }}
+      >
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            textAlign: 'center',
+            maxWidth: 700,
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
           {/* Back Button */}
           <Box display="flex" justifyContent="flex-start" sx={{ mb: 2 }}>
             <IconButton 
               onClick={() => navigate(-1)}
               sx={{ 
-                bgcolor: 'grey.100',
-                '&:hover': { bgcolor: 'grey.200' }
+                bgcolor: 'action.hover',
+                borderRadius: 2,
+                '&:hover': { 
+                  bgcolor: 'action.selected',
+                  transform: 'translateY(-1px)'
+                }
               }}
             >
               <BackIcon />
@@ -259,7 +326,7 @@ const QuizTakingPage = () => {
             </Box>
           </Box>
           
-          <Alert severity="info" sx={{ mb: 3, textAlign: 'left' }}>
+          <Alert severity="info" sx={{ mb: 3, textAlign: 'left', borderRadius: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
               Instructions:
             </Typography>
@@ -277,13 +344,24 @@ const QuizTakingPage = () => {
               variant="contained" 
               size="large" 
               onClick={handleStartQuiz}
-              sx={{ px: 4, py: 1.5 }}
+              sx={{ 
+                px: 4, 
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': {
+                  boxShadow: 'none',
+                  opacity: 0.9
+                }
+              }}
             >
               Start Quiz
             </Button>
           ) : (
             <Box sx={{ mt: 3, textAlign: 'center' }}>
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                 {quiz.attemptInfo?.remainingAttempts === 0 
                   ? `You have reached the maximum number of attempts (${quiz.attemptInfo.max_attempts}) for this quiz.`
                   : 'Unable to verify attempt status. Please try again later.'}
@@ -291,14 +369,20 @@ const QuizTakingPage = () => {
               <Button 
                 variant="outlined" 
                 onClick={() => navigate('/dashboard')}
-                sx={{ px: 4, py: 1.5 }}
+                sx={{ 
+                  px: 4, 
+                  py: 1.5,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
               >
                 Back to Dashboard
               </Button>
             </Box>
           )}
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
@@ -308,41 +392,90 @@ const QuizTakingPage = () => {
   // Safety check - if no questions or current question doesn't exist, show error
   if (!quiz.questions?.length || !currentQuestion) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Alert severity="error">
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          p: 3
+        }}
+      >
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            textAlign: 'center',
+            maxWidth: 500,
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Alert severity="error" sx={{ borderRadius: 2 }}>
             No questions available for this quiz.
           </Alert>
           <Button 
             onClick={() => navigate(-1)}
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{ 
+              mt: 2,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: 'none',
+              '&:hover': {
+                boxShadow: 'none',
+                opacity: 0.9
+              }
+            }}
           >
             Go Back
           </Button>
         </Paper>
-      </Container>
+      </Box>
     );
   }
   
 
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 3, mt: 4 }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        p: 3
+      }}
+    >
+      <Box sx={{ maxWidth: 900, mx: 'auto' }}>
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4,
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
         {/* Header (Back Button, Quiz Title & Timer) */}
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
           <Box display="flex" alignItems="center" gap={2}>
             <IconButton 
               onClick={() => navigate(-1)}
               sx={{ 
-                bgcolor: 'grey.100',
-                '&:hover': { bgcolor: 'grey.200' }
+                bgcolor: 'action.hover',
+                borderRadius: 2,
+                '&:hover': { 
+                  bgcolor: 'action.selected',
+                  transform: 'translateY(-1px)'
+                }
               }}
             >
               <BackIcon />
             </IconButton>
-            <Typography variant="h5">{quiz.title}</Typography>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
+              {quiz.title}
+            </Typography>
           </Box>
           {quiz.time_limit && quizStarted && (
             <Timer 
@@ -356,28 +489,43 @@ const QuizTakingPage = () => {
         <LinearProgress
           variant="determinate"
           value={quiz.questions?.length ? ((currentQuestionIndex + 1) / quiz.questions.length) * 100 : 0}
-          sx={{ my: 2 }}
+          sx={{ borderRadius: 1, height: 8, mb: 3 }}
         />
 
         {/* Question & Options */}
         <Box sx={{ my: 4 }}>
-          <Typography variant="h6">
-            Question {currentQuestionIndex + 1}: {currentQuestion.question_text}
-          </Typography>
+          <Box sx={{ mb: 3, p: 3, bgcolor: 'grey.50', borderRadius: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary', mb: 2 }}>
+              Question {currentQuestionIndex + 1} of {quiz.questions?.length}
+            </Typography>
+            <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+              {currentQuestion.question_text}
+            </Typography>
+          </Box>
 
           {/* Answer Options */}
           {currentQuestion.question_type === 'multiple_choice' && (
             <RadioGroup
               value={answers[currentQuestion.id] || ''}
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+              sx={{ mt: 2 }}
             >
               {currentQuestion.options?.map((option) => (
                 <FormControlLabel
                   key={option.id}
                   value={option.id.toString()}
-                  control={<Radio />}
+                  control={<Radio sx={{ '&.Mui-checked': { color: 'primary.main' } }} />}
                   label={option.option_text}
-                  sx={{ mb: 1 }}
+                  sx={{ 
+                    mb: 1.5,
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    '&:hover': {
+                      bgcolor: 'action.hover'
+                    }
+                  }}
                 />
               ))}
             </RadioGroup>
@@ -387,14 +535,24 @@ const QuizTakingPage = () => {
             <RadioGroup
               value={answers[currentQuestion.id] || ''}
               onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+              sx={{ mt: 2 }}
             >
               {currentQuestion.options?.map((option) => (
                 <FormControlLabel
                   key={option.id}
                   value={option.id.toString()}
-                  control={<Radio />}
+                  control={<Radio sx={{ '&.Mui-checked': { color: 'primary.main' } }} />}
                   label={option.option_text}
-                  sx={{ mb: 1 }}
+                  sx={{ 
+                    mb: 1.5,
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    '&:hover': {
+                      bgcolor: 'action.hover'
+                    }
+                  }}
                 />
               ))}
             </RadioGroup>
@@ -415,19 +573,34 @@ const QuizTakingPage = () => {
         </Box>
 
         {/* Navigation Buttons */}
-        <Box display="flex" justifyContent="space-between">
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
           <Button
             variant="outlined"
             disabled={currentQuestionIndex === 0}
             onClick={handlePreviousQuestion}
+            sx={{
+              py: 1.5,
+              px: 3,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600
+            }}
           >
             Previous
           </Button>
 
-          <Box>
+          <Box display="flex" alignItems="center" gap={2}>
             <IconButton 
               onClick={handleFlagQuestion} 
               color={flagged.includes(currentQuestionIndex) ? "warning" : "default"}
+              sx={{
+                borderRadius: 2,
+                bgcolor: flagged.includes(currentQuestionIndex) ? 'warning.light' : 'action.hover',
+                '&:hover': {
+                  bgcolor: flagged.includes(currentQuestionIndex) ? 'warning.main' : 'action.selected',
+                  transform: 'translateY(-1px)'
+                }
+              }}
             >
               <FlagIcon />
             </IconButton>
@@ -436,6 +609,18 @@ const QuizTakingPage = () => {
               <Button
                 variant="contained"
                 onClick={handleNextQuestion}
+                sx={{
+                  py: 1.5,
+                  px: 3,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: 'none',
+                  '&:hover': {
+                    boxShadow: 'none',
+                    opacity: 0.9
+                  }
+                }}
               >
                 Next
               </Button>
@@ -447,6 +632,18 @@ const QuizTakingPage = () => {
                   setSubmitError(null); // Clear any previous error
                   setShowSubmitDialog(true);
                 }}
+                sx={{
+                  py: 1.5,
+                  px: 3,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  boxShadow: 'none',
+                  '&:hover': {
+                    boxShadow: 'none',
+                    opacity: 0.9
+                  }
+                }}
               >
                 Submit Quiz
               </Button>
@@ -455,8 +652,10 @@ const QuizTakingPage = () => {
         </Box>
 
         {/* Question Navigation Sidebar */}
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="subtitle2">Jump to Question:</Typography>
+        <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600, color: 'text.primary' }}>
+            Jump to Question:
+          </Typography>
           <Grid container spacing={1}>
             {quiz.questions?.map((q, index) => (
               <Grid item key={index}>
@@ -480,6 +679,18 @@ const QuizTakingPage = () => {
                       : "default"
                   }
                   onClick={() => setCurrentQuestionIndex(index)}
+                  sx={{
+                    minWidth: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    boxShadow: 'none',
+                    '&:hover': {
+                      boxShadow: 'none',
+                      transform: 'translateY(-1px)'
+                    }
+                  }}
                 >
                   {index + 1}
                 </Button>
@@ -487,31 +698,62 @@ const QuizTakingPage = () => {
             )) || []}
           </Grid>
         </Box>
-      </Paper>
+        </Paper>
+      </Box>
 
       {/* Submit Confirmation Dialog */}
-      <Dialog open={showSubmitDialog} onClose={() => setShowSubmitDialog(false)}>
-        <DialogTitle>Submit Quiz?</DialogTitle>
+      <Dialog 
+        open={showSubmitDialog} 
+        onClose={() => setShowSubmitDialog(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600 }}>Submit Quiz?</DialogTitle>
         <DialogContent>
           <Typography>Are you sure you want to submit? You cannot change answers afterward.</Typography>
           {submitError && (
-            <Alert severity="error" sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
               {submitError}
             </Alert>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowSubmitDialog(false)} disabled={isSubmitting}>Cancel</Button>
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button 
+            onClick={() => setShowSubmitDialog(false)} 
+            disabled={isSubmitting}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600
+            }}
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleSubmitQuiz} 
             color="primary"
+            variant="contained"
             disabled={isSubmitting}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: 'none',
+              '&:hover': {
+                boxShadow: 'none',
+                opacity: 0.9
+              }
+            }}
           >
-            {isSubmitting ? <CircularProgress size={20} /> : 'Submit'}
+            {isSubmitting ? <CircleLoader size={20} color="#ffffff" /> : 'Submit'}
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 

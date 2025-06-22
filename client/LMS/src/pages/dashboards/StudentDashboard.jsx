@@ -1,6 +1,20 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Grid, Paper, Tabs, Tab, Container, CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Paper,
+  Tabs,
+  Tab,
+  Container,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Avatar,
+  Alert,
+  styled
+} from "@mui/material";
+import { CircleLoader } from 'react-spinners';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import StudentProfile from "../../components/student/StudentProfile";
 import StatCard from "../../components/student/StatCard";
@@ -10,18 +24,45 @@ import AssignmentsTab from "../../components/student/AssignmentsTab";
 import QuizzesTab from "../../components/student/QuizzesTab";
 
 import AssignmentDialog from "../../components/student/AssignmentsDialog";
-import { CheckCircle, School, EmojiEvents, LocalFireDepartment } from '@mui/icons-material';
-import { Description as FileText } from '@mui/icons-material';
+import { validateFileUpload } from '../../utils/constants';
+import { FiBook, FiAward, FiClock, FiTrendingUp } from "react-icons/fi";
 
-// Import hooks
 import { useAuthContext } from "../../hooks/useAuth";
 import { useMyEnrollments } from "../../hooks/useEnrollments";
 import { useQuizzesByLesson } from "../../hooks/useQuizzes";
 import { useAssignmentsByLesson } from "../../hooks/useAssignments";
-import { useModulesByCourse } from '../../hooks/useModules'; // Fixed path
+import { useModulesByCourse } from '../../hooks/useModules';
+
+const ModernPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: "12px",
+  boxShadow: theme.shadows[2],
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+  },
+}));
+
+const ModernTabs = styled(Tabs)(({ theme }) => ({
+  "& .MuiTabs-indicator": {
+    height: "4px",
+    borderRadius: "2px",
+  },
+}));
+
+const ModernTab = styled(Tab)(({ theme }) => ({
+  textTransform: "none",
+  fontWeight: 500,
+  fontSize: "0.875rem",
+  minWidth: "unset",
+  padding: theme.spacing(1, 2),
+  "&.Mui-selected": {
+    color: theme.palette.primary.main,
+  },
+}));
 
 const StudentDashboard = () => {
-  // State declarations
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTab, setSelectedTab] = useState(0);
   const [openAssignmentDialog, setOpenAssignmentDialog] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
@@ -44,7 +85,6 @@ const StudentDashboard = () => {
   const studentStats = {
     enrolledCourses: enrollments?.length || 0,
     completedCourses: enrollments?.filter(enrollment => enrollment.progress === 100)?.length || 0,
-    certificatesEarned: enrollments?.filter(enrollment => enrollment.certificate_earned)?.length || 0,
     studyStreak: enrollments?.filter(enrollment => enrollment.progress > 0)?.length || 0,
   };
 
@@ -81,42 +121,20 @@ const StudentDashboard = () => {
     }
   }, [searchParams]);
 
-  // ALL HANDLER FUNCTIONS - MOVE THESE HERE
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = useCallback((event, newValue) => {
     setSelectedTab(newValue);
     if (newValue !== 0) {
       setSelectedCourse(null);
     }
-  };
-
-  const handleCourseSelect = useCallback(async (course) => {
-    try {
-      // Fetch complete course data for better course information
-      const { getCourse } = await import('../../services/courseService');
-      const fullCourseData = await getCourse(course.id);
-      
-      // Combine enrollment data with full course data
-      const courseWithEnrollmentData = {
-        ...fullCourseData,
-        progress: course.progress,
-        enrollmentId: course.enrollmentId,
-        enrolledAt: course.enrolledAt,
-        completedAt: course.completedAt
-      };
-      
-      setSelectedCourse(courseWithEnrollmentData);
-      setCurrentLesson(null);
-      setCurrentVideo(null);
-    } catch (error) {
-      console.error('Error fetching course details:', error);
-      // Fallback to basic course data if fetch fails
-      setSelectedCourse(course);
-      setCurrentLesson(null);
-      setCurrentVideo(null);
-    }
   }, []);
 
-  const handleProgressUpdate = (newProgress) => {
+  const handleCourseSelect = useCallback((course) => {
+    setSelectedCourse(course);
+    setCurrentLesson(null);
+    setCurrentVideo(null);
+  }, []);
+
+  const handleProgressUpdate = useCallback((newProgress) => {
     if (selectedCourse) {
       setSelectedCourse(prev => ({
         ...prev,
@@ -125,76 +143,72 @@ const StudentDashboard = () => {
       // Refresh enrollments to keep the course list in sync with updated progress
       refetchEnrollments();
     }
-  };
+  }, [selectedCourse]);
 
-  const handleBackToDashboard = () => {
+  const handleBackToDashboard = useCallback(() => {
     setSelectedCourse(null);
     setCurrentLesson(null);
     setCurrentVideo(null);
-    // Refetch enrollments to get updated progress
     refetchEnrollments();
-  };
+  }, [refetchEnrollments]);
 
-  const handleLessonSelect = (lesson) => {
+  const handleLessonSelect = useCallback((lesson) => {
     setCurrentLesson(lesson);
     if (lesson.video_url) {
       setCurrentVideo(lesson.video_url);
     }
-  };
+  }, []);
 
-  const handleAssignmentClick = (assignment) => {
+  const handleAssignmentClick = useCallback((assignment) => {
     setSelectedAssignment(assignment);
     setOpenAssignmentDialog(true);
-  };
+  }, []);
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = useCallback((event) => {
     const uploadedFile = event.target.files[0];
     setFile(uploadedFile);
-  };
+  }, []);
 
-  const handleSubmitAssignment = () => {
+  const handleSubmitAssignment = useCallback(() => {
     setOpenAssignmentDialog(false);
     setFile(null);
-  };
+  }, []);
 
-  // Loading and error states
   if (enrollmentsLoading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          Loading your dashboard...
+          <CircleLoader size={50} color="#7f00ff" />
         </Box>
       </Container>
     );
   }
 
-  // Error state
   if (enrollmentsError) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          Error loading dashboard: {enrollmentsError}
+          <Alert severity="error" sx={{ width: '100%', maxWidth: 600 }}>
+            {enrollmentsError}
+          </Alert>
         </Box>
       </Container>
     );
   }
 
-  // If a course is selected from My Courses tab, show the course detail view
   if (selectedCourse && selectedTab === 0) {
-    // Show loading while modules are being fetched
     if (modulesLoading) {
       return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
           <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-            <CircularProgress />
-            <Typography sx={{ ml: 2 }}>Loading course content...</Typography>
+            <CircleLoader size={50} color="#7f00ff" />
           </Box>
         </Container>
       );
     }
 
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <CourseDetailsView
           selectedCourse={courseWithModules}
           onBack={handleBackToDashboard}
@@ -209,41 +223,96 @@ const StudentDashboard = () => {
     );
   }
 
-  // Main dashboard view
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Grid container spacing={3}>
-        {/* Student Profile */}
-        <Grid item xs={12}>
-          <StudentProfile 
-            student={{
-              name: user?.name || 'Student',
-              email: user?.email || '',
-              avatar: user?.avatar_url?.trim().replace(/`/g, '') || '',
-              ...studentStats
-            }} 
-          />
+      {/* Modern Header Section */}
+      <Box mb={4}>
+        <Box
+          display="flex"
+          alignItems="center"
+          gap={3}
+          mb={4}
+          sx={{
+            p: 3,
+            borderRadius: "12px",
+            background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 100%)`,
+            color: "white",
+            boxShadow: theme.shadows[2],
+          }}
+        >
+          <Avatar
+            src={user?.avatar_url?.trim().replace(/`/g, '') || ''}
+            sx={{
+              width: 72,
+              height: 72,
+              fontSize: "1.75rem",
+              bgcolor: "primary.dark",
+              border: "3px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            {user?.name
+              ?.split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </Avatar>
+          <Box>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              Welcome back, {user?.name || 'Student'}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+              Here's your learning progress and upcoming activities
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Modern Stats Cards */}
+        <Grid container spacing={isMobile ? 2 : 3} mb={4}>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Enrolled Courses"
+              value={studentStats.enrolledCourses}
+              icon={FiBook}
+              color="primary"
+              variant="gradient"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Completed Courses"
+              value={studentStats.completedCourses}
+              icon={FiAward}
+              color="success"
+              variant="gradient"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Active Courses"
+              value={studentStats.studyStreak}
+              icon={FiClock}
+              color="info"
+              variant="gradient"
+            />
+          </Grid>
         </Grid>
+      </Box>
 
-
-      </Grid>
-
-      {/* Tabs Section */}
-      <Paper sx={{ borderRadius: 2, mb: 4, mt: 4 }}>
-        <Tabs
+      {/* Modern Tabs Section */}
+      <ModernPaper sx={{ mb: 4 }}>
+        <ModernTabs
           value={selectedTab}
           onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"
         >
-          <Tab label="My Courses" />
-          <Tab label="Assignments" />
-          <Tab label="Quizzes" />
-        </Tabs>
-      </Paper>
+          <ModernTab value={0} label="My Courses" />
+          <ModernTab value={1} label="Assignments" />
+          <ModernTab value={2} label="Quizzes" />
+        </ModernTabs>
+      </ModernPaper>
 
       {/* Tab Content */}
-      <Box sx={{ minHeight: '400px' }}>
+      <Box sx={{ mb: 4 }}>
         {selectedTab === 0 && (
           <Grid container spacing={3}>
             {enrolledCourses.map((course) => (
@@ -256,32 +325,31 @@ const StudentDashboard = () => {
             ))}
             {enrolledCourses.length === 0 && (
               <Grid item xs={12}>
-                <Box textAlign="center" py={4}>
-                  <p>No enrolled courses found. Start learning by enrolling in a course!</p>
-                </Box>
+                <ModernPaper sx={{ p: 3, textAlign: 'center' }}>
+                  <Typography variant="body1">No enrolled courses found.</Typography>
+                </ModernPaper>
               </Grid>
             )}
           </Grid>
         )}
         
-        {/* Assignments Tab */}
         {selectedTab === 1 && (
-          <AssignmentsTab
-            enrolledCourses={enrolledCourses}
-          />
+          <ModernPaper sx={{ p: 3 }}>
+            <AssignmentsTab
+              enrolledCourses={enrolledCourses}
+            />
+          </ModernPaper>
         )}
         
-        {/* Quizzes Tab */}
         {selectedTab === 2 && (
-          <QuizzesTab
-            enrolledCourses={enrolledCourses}
-          />
+          <ModernPaper sx={{ p: 3 }}>
+            <QuizzesTab
+              enrolledCourses={enrolledCourses}
+            />
+          </ModernPaper>
         )}
-        
-
       </Box>
 
-      {/* Assignment Dialog */}
       <AssignmentDialog
         open={openAssignmentDialog}
         onClose={() => setOpenAssignmentDialog(false)}

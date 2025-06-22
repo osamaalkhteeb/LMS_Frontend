@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { ClockLoader } from 'react-spinners';
 import {
   Card,
   CardContent,
@@ -12,7 +13,6 @@ import {
   TableBody,
   Button,
   Chip,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -117,21 +117,10 @@ const AssignmentsTab = ({ enrolledCourses }) => {
     try {
       setSubmitting(true);
       
-      console.log('Submitting with file:', submissionFile);
-      console.log('Submitting with text:', submissionText);
-      
       const formData = new FormData();
       formData.append('content', submissionText);
       if (submissionFile) {
         formData.append('submissionFile', submissionFile);
-        console.log('File appended to FormData:', submissionFile.name, submissionFile.size);
-      } else {
-        console.log('No file to append');
-      }
-      
-      // Log FormData contents
-      for (let [key, value] of formData.entries()) {
-        console.log('FormData entry:', key, value);
       }
       
       await submitAssignment(submitDialog.assignment.id, formData);
@@ -207,7 +196,7 @@ const AssignmentsTab = ({ enrolledCourses }) => {
       <Card sx={{ borderRadius: 2 }}>
         <CardContent>
           <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-            <CircularProgress />
+            <ClockLoader size={50} color="#1976d2" />
           </Box>
         </CardContent>
       </Card>
@@ -375,7 +364,6 @@ const AssignmentsTab = ({ enrolledCourses }) => {
               accept=".doc,.docx,.pdf,.txt"
               onChange={(e) => {
                 const file = e.target.files[0];
-                console.log('File selected:', file);
                 setSubmissionFile(file);
               }}
               style={{ marginBottom: 16 }}
@@ -399,7 +387,7 @@ const AssignmentsTab = ({ enrolledCourses }) => {
             onClick={handleSubmitAssignment}
             variant="contained"
             disabled={submitting || (!submissionText.trim() && !submissionFile)}
-            startIcon={submitting ? <CircularProgress size={16} /> : <UploadIcon />}
+            startIcon={submitting ? <ClockLoader size={16} color="#1976d2" /> : <UploadIcon />}
           >
             {submitting ? 'Submitting...' : 'Submit'}
           </Button>

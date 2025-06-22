@@ -3,12 +3,23 @@ import apiClient from './apiClient.js';
 // Create assignment (Instructor/Admin only)
 export const createAssignment = async (courseId, lessonId, assignmentData) => {
   try {
-    const response = await apiClient.post(`/assignments`, { courseId, lessonId, ...assignmentData });
+    const response = await apiClient.post(`/assignments/courses/${courseId}/lessons/${lessonId}`, assignmentData);
     return response.data?.data || response.data;
   } catch (error) {
     console.error('Error creating assignment:', error);
     console.error('Error response:', error.response?.data);
     console.error('Error status:', error.response?.status);
+    
+    // Extract validation errors from the validation middleware
+    if (error.response?.status === 400 && error.response?.data?.error) {
+      const validationErrors = error.response.data.error;
+      const errorMessages = validationErrors.map(err => err.message).join(', ');
+      const enhancedError = new Error(errorMessages);
+      enhancedError.validationErrors = validationErrors;
+      enhancedError.isValidationError = true;
+      throw enhancedError;
+    }
+    
     throw error;
   }
 };

@@ -5,19 +5,20 @@ import {
   Typography,
   Button,
   Chip,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  Snackbar
+  Snackbar,
+  useTheme,
 } from "@mui/material";
+import { CircleLoader } from 'react-spinners';
 import {
-   ArrowBack as ArrowBackIcon,
-   Add as AddIcon
- } from "@mui/icons-material";
+  ArrowBack as ArrowBackIcon,
+  Add as AddIcon,
+} from "@mui/icons-material";
 import {
   DndContext,
   closestCenter,
@@ -32,18 +33,30 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  useSortable,
-} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { getModulesByCourse, updateModule, createModule, deleteModule } from '../../services/moduleService';
-import { updateLesson, createLesson, deleteLesson } from '../../services/lessonService';
-import { createQuiz, deleteQuiz } from '../../services/quizService';
-import { createAssignment, deleteAssignment } from '../../services/assignmentService';
-import SortableModule from './SortableModule';
-import QuizManagement from './QuizManagement';
+import {
+  getModulesByCourse,
+  updateModule,
+  createModule,
+  deleteModule,
+} from "../../services/moduleService";
+import {
+  updateLesson,
+  createLesson,
+  deleteLesson,
+} from "../../services/lessonService";
+import { createQuiz, deleteQuiz } from "../../services/quizService";
+import {
+  createAssignment,
+  deleteAssignment,
+} from "../../services/assignmentService";
+import { validateFileUpload, getAcceptAttribute } from "../../utils/constants";
+import SortableModule from "./SortableModule";
+import QuizManagement from "./QuizManagement";
 
 const CourseDetailView = ({ course, onBack }) => {
+  const theme = useTheme();
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,27 +65,41 @@ const CourseDetailView = ({ course, onBack }) => {
   const [openLessonDialog, setOpenLessonDialog] = useState(false);
 
   const [openQuizDialog, setOpenQuizDialog] = useState(false);
-  const [openQuizManagementDialog, setOpenQuizManagementDialog] = useState(false);
+  const [openQuizManagementDialog, setOpenQuizManagementDialog] =
+    useState(false);
   const [openAssignmentDialog, setOpenAssignmentDialog] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState(null);
   const [selectedLessonForQuiz, setSelectedLessonForQuiz] = useState(null);
   const [editingModule, setEditingModule] = useState(null);
 
-  const [moduleForm, setModuleForm] = useState({ title: '', description: '' });
+  const [moduleForm, setModuleForm] = useState({ title: "", description: "" });
   const [lessonForm, setLessonForm] = useState({
-    title: '', 
-    contentType: 'video', 
-    contentUrl: '', 
+    title: "",
+    contentType: "video",
+    content: "",
     duration: 0,
     orderNum: 1,
-    uploadType: 'url', // 'url' or 'file'
-    file: null
+    uploadType: "url", // 'url' or 'file'
+    file: null,
   });
-  const [quizForm, setQuizForm] = useState({ title: '', passing_score: 50, time_limit: 10, max_attempts: 1 });
-  const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', deadline: '', points: 100 });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  
+  const [quizForm, setQuizForm] = useState({
+    title: "",
+    passing_score: 50,
+    time_limit: 10,
+    max_attempts: 1,
+  });
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: "",
+    description: "",
+    deadline: "",
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -90,16 +117,20 @@ const CourseDetailView = ({ course, onBack }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch modules from backend API
       const moduleData = await getModulesByCourse(course.id);
-      
+
       // Sort modules by orderNum
-      const sortedModules = moduleData.sort((a, b) => (a.orderNum || 0) - (b.orderNum || 0));
+      const sortedModules = moduleData.sort(
+        (a, b) => (a.orderNum || 0) - (b.orderNum || 0)
+      );
       setModules(sortedModules);
     } catch (error) {
-      console.error('Error fetching course modules:', error);
-      setError(error.response?.data?.message || 'Failed to load course modules');
+      console.error("Error fetching course modules:", error);
+      setError(
+        error.response?.data?.message || "Failed to load course modules"
+      );
     } finally {
       setLoading(false);
     }
@@ -112,29 +143,35 @@ const CourseDetailView = ({ course, onBack }) => {
       return;
     }
 
-    const oldIndex = modules.findIndex((module) => module.id.toString() === active.id);
-    const newIndex = modules.findIndex((module) => module.id.toString() === over.id);
+    const oldIndex = modules.findIndex(
+      (module) => module.id.toString() === active.id
+    );
+    const newIndex = modules.findIndex(
+      (module) => module.id.toString() === over.id
+    );
 
-    const updatedModules = arrayMove(modules, oldIndex, newIndex).map((module, index) => ({
-      ...module,
-      orderNum: index + 1
-    }));
+    const updatedModules = arrayMove(modules, oldIndex, newIndex).map(
+      (module, index) => ({
+        ...module,
+        orderNum: index + 1,
+      })
+    );
 
     setModules(updatedModules);
-    
+
     // Update module order in backend
     try {
       // Update each module's orderNum in the backend
       await Promise.all(
-        updatedModules.map(module => 
+        updatedModules.map((module) =>
           updateModule(course.id, module.id, { orderNum: module.orderNum })
         )
       );
     } catch (error) {
-      console.error('Error updating module order:', error);
+      console.error("Error updating module order:", error);
       // Revert to original order on error
       setModules(modules);
-      setError('Failed to update module order');
+      setError("Failed to update module order");
     }
   };
 
@@ -146,42 +183,48 @@ const CourseDetailView = ({ course, onBack }) => {
     }
 
     // Find the module containing the lessons
-    const moduleIndex = modules.findIndex(module => module.id === moduleId);
+    const moduleIndex = modules.findIndex((module) => module.id === moduleId);
     if (moduleIndex === -1) return;
 
     const module = modules[moduleIndex];
     const lessons = module.lessons || [];
 
-    const oldIndex = lessons.findIndex((lesson) => lesson.id.toString() === active.id);
-    const newIndex = lessons.findIndex((lesson) => lesson.id.toString() === over.id);
+    const oldIndex = lessons.findIndex(
+      (lesson) => lesson.id.toString() === active.id
+    );
+    const newIndex = lessons.findIndex(
+      (lesson) => lesson.id.toString() === over.id
+    );
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const updatedLessons = arrayMove(lessons, oldIndex, newIndex).map((lesson, index) => ({
-      ...lesson,
-      orderNum: index + 1
-    }));
+    const updatedLessons = arrayMove(lessons, oldIndex, newIndex).map(
+      (lesson, index) => ({
+        ...lesson,
+        orderNum: index + 1,
+      })
+    );
 
     // Update the modules state
     const updatedModules = [...modules];
     updatedModules[moduleIndex] = {
       ...module,
-      lessons: updatedLessons
+      lessons: updatedLessons,
     };
     setModules(updatedModules);
 
     // Update lesson order in backend
-      try {
-        await Promise.all(
-          updatedLessons.map(lesson => 
-            updateLesson(course.id, lesson.id, { orderNum: lesson.orderNum })
-          )
-        );
+    try {
+      await Promise.all(
+        updatedLessons.map((lesson) =>
+          updateLesson(course.id, lesson.id, { orderNum: lesson.orderNum })
+        )
+      );
     } catch (error) {
-      console.error('Error updating lesson order:', error);
+      console.error("Error updating lesson order:", error);
       // Revert to original order on error
       setModules(modules);
-      setError('Failed to update lesson order');
+      setError("Failed to update lesson order");
     }
   };
 
@@ -191,54 +234,87 @@ const CourseDetailView = ({ course, onBack }) => {
       const orderNum = modules.length + 1;
       const newModule = await createModule(course.id, {
         ...moduleForm,
-        orderNum
+        orderNum,
       });
-      
+
       setModules([...modules, { ...newModule, lessons: [] }]);
       setOpenModuleDialog(false);
-      setModuleForm({ title: '', description: '' });
-      setSnackbar({ open: true, message: 'Module created successfully', severity: 'success' });
+      setModuleForm({ title: "", description: "" });
+      setSnackbar({
+        open: true,
+        message: "Module created successfully",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error creating module:', error);
-      setSnackbar({ open: true, message: 'Failed to create module', severity: 'error' });
+      console.error("Error creating module:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to create module",
+        severity: "error",
+      });
     }
   };
 
   const handleEditModule = async (moduleId) => {
-    const module = modules.find(m => m.id === moduleId);
+    const module = modules.find((m) => m.id === moduleId);
     if (module) {
       setEditingModule(module);
-      setModuleForm({ title: module.title, description: module.description || '' });
+      setModuleForm({
+        title: module.title,
+        description: module.description || "",
+      });
       setOpenEditModuleDialog(true);
     }
   };
 
   const handleUpdateModule = async () => {
     try {
-      const updatedModule = await updateModule(course.id, editingModule.id, moduleForm);
-      setModules(modules.map(module => 
-        module.id === editingModule.id 
-          ? { ...module, ...updatedModule }
-          : module
-      ));
+      const updatedModule = await updateModule(
+        course.id,
+        editingModule.id,
+        moduleForm
+      );
+      setModules(
+        modules.map((module) =>
+          module.id === editingModule.id
+            ? { ...module, ...updatedModule }
+            : module
+        )
+      );
       setOpenEditModuleDialog(false);
       setEditingModule(null);
-      setModuleForm({ title: '', description: '' });
-      setSnackbar({ open: true, message: 'Module updated successfully', severity: 'success' });
+      setModuleForm({ title: "", description: "" });
+      setSnackbar({
+        open: true,
+        message: "Module updated successfully",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error updating module:', error);
-      setSnackbar({ open: true, message: 'Failed to update module', severity: 'error' });
+      console.error("Error updating module:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to update module",
+        severity: "error",
+      });
     }
   };
 
   const handleDeleteModule = async (moduleId) => {
     try {
       await deleteModule(course.id, moduleId);
-      setModules(modules.filter(module => module.id !== moduleId));
-      setSnackbar({ open: true, message: 'Module deleted successfully', severity: 'success' });
+      setModules(modules.filter((module) => module.id !== moduleId));
+      setSnackbar({
+        open: true,
+        message: "Module deleted successfully",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error deleting module:', error);
-      setSnackbar({ open: true, message: 'Failed to delete module', severity: 'error' });
+      console.error("Error deleting module:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete module",
+        severity: "error",
+      });
     }
   };
 
@@ -246,81 +322,133 @@ const CourseDetailView = ({ course, onBack }) => {
   const handleCreateLesson = async () => {
     try {
       // Validate input based on upload type
-      if (lessonForm.uploadType === 'url') {
-        if (!lessonForm.contentUrl) {
-          setSnackbar({ open: true, message: 'Please enter a content URL', severity: 'error' });
+      if (lessonForm.uploadType === "url") {
+        if (!lessonForm.content) {
+          setSnackbar({
+            open: true,
+            message: "Please enter a content URL",
+            severity: "error",
+          });
           return;
         }
         try {
-          new URL(lessonForm.contentUrl);
+          new URL(lessonForm.content);
         } catch {
-          setSnackbar({ open: true, message: 'Please enter a valid URL', severity: 'error' });
+          setSnackbar({
+            open: true,
+            message: "Please enter a valid URL",
+            severity: "error",
+          });
           return;
         }
-      } else if (lessonForm.uploadType === 'file') {
+      } else if (lessonForm.uploadType === "file") {
         if (!lessonForm.file) {
-          setSnackbar({ open: true, message: 'Please select a file to upload', severity: 'error' });
+          setSnackbar({
+            open: true,
+            message: "Please select a file to upload",
+            severity: "error",
+          });
+          return;
+        }
+
+        // Validate file type and size using constants
+        const validation = validateFileUpload(
+          lessonForm.file,
+          lessonForm.contentType
+        );
+        if (!validation.isValid) {
+          setSnackbar({
+            open: true,
+            message: validation.error,
+            severity: "error",
+          });
           return;
         }
       }
-      
-      const moduleIndex = modules.findIndex(module => module.id === selectedModuleId);
+
+      const moduleIndex = modules.findIndex(
+        (module) => module.id === selectedModuleId
+      );
       const orderNum = modules[moduleIndex].lessons.length + 1;
-      
+
       // Create FormData for file upload
       const formData = new FormData();
-      formData.append('title', lessonForm.title);
-      formData.append('contentType', lessonForm.contentType);
-      formData.append('duration', parseInt(lessonForm.duration) || 0);
-      formData.append('orderNum', orderNum);
-      
-      if (lessonForm.uploadType === 'file' && lessonForm.file) {
-        formData.append('file', lessonForm.file);
+      formData.append("title", lessonForm.title);
+      formData.append("contentType", lessonForm.contentType);
+      formData.append("duration", parseInt(lessonForm.duration) || 0);
+      formData.append("orderNum", orderNum);
+
+      if (lessonForm.uploadType === "file" && lessonForm.file) {
+        formData.append("file", lessonForm.file);
       } else {
-        formData.append('contentUrl', lessonForm.contentUrl);
+        formData.append("content", lessonForm.content);
       }
-      
-      const newLesson = await createLesson(course.id, selectedModuleId, formData, true); // true indicates FormData
-      
+
+      const newLesson = await createLesson(
+        course.id,
+        selectedModuleId,
+        formData,
+        true
+      ); // true indicates FormData
+
       const updatedModules = [...modules];
       updatedModules[moduleIndex].lessons.push(newLesson);
       setModules(updatedModules);
-      
+
       setOpenLessonDialog(false);
-      setLessonForm({ 
-         title: '', 
-         contentType: 'video', 
-         contentUrl: '', 
-         duration: 0,
-         orderNum: 1,
-         uploadType: 'url',
-         file: null
-       });
-      setSnackbar({ open: true, message: 'Lesson created successfully', severity: 'success' });
+      setLessonForm({
+        title: "",
+        contentType: "video",
+        content: "",
+        duration: 0,
+        orderNum: 1,
+        uploadType: "url",
+        file: null,
+      });
+      setSnackbar({
+        open: true,
+        message: "Lesson created successfully",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error creating lesson:', error);
-      setSnackbar({ open: true, message: 'Failed to create lesson', severity: 'error' });
+      console.error("Error creating lesson:", error);
+
+      // Extract error message from server response
+      let errorMessage = "Failed to create lesson";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error?.details) {
+        errorMessage = error.response.data.error.details;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setSnackbar({ open: true, message: errorMessage, severity: "error" });
     }
   };
-
-
-
-
 
   const handleDeleteLesson = async (lessonId) => {
     try {
       await deleteLesson(course.id, lessonId);
-      
-      const updatedModules = modules.map(module => ({
+
+      const updatedModules = modules.map((module) => ({
         ...module,
-        lessons: module.lessons.filter(lesson => lesson.id !== lessonId)
+        lessons: module.lessons.filter((lesson) => lesson.id !== lessonId),
       }));
-      
+
       setModules(updatedModules);
-      setSnackbar({ open: true, message: 'Lesson deleted successfully', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: "Lesson deleted successfully",
+        severity: "success",
+      });
     } catch (error) {
-      console.error('Error deleting lesson:', error);
-      setSnackbar({ open: true, message: 'Failed to delete lesson', severity: 'error' });
+      console.error("Error deleting lesson:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete lesson",
+        severity: "error",
+      });
     }
   };
 
@@ -328,37 +456,63 @@ const CourseDetailView = ({ course, onBack }) => {
   const handleCreateQuiz = async () => {
     try {
       // First create a lesson for the quiz
-      const moduleIndex = modules.findIndex(module => module.id === selectedModuleId);
+      const moduleIndex = modules.findIndex(
+        (module) => module.id === selectedModuleId
+      );
       const orderNum = modules[moduleIndex].lessons.length + 1;
-      
-      const newLesson = await createLesson(course.id, selectedModuleId, {
+
+      const lessonData = {
         title: quizForm.title,
-        contentType: 'quiz',
+        contentType: "quiz",
         duration: quizForm.time_limit,
-        orderNum
-      });
-      
+        orderNum,
+      };
+      const newLesson = await createLesson(
+        course.id,
+        selectedModuleId,
+        lessonData
+      );
       // Then create the quiz linked to this lesson
-      await createQuiz(course.id, newLesson.id, quizForm);
-      
+      const createdQuiz = await createQuiz(course.id, newLesson.id, quizForm);
+
       setOpenQuizDialog(false);
-      setQuizForm({ title: '', passing_score: 50, time_limit: 10, max_attempts: 1 });
-      setSnackbar({ open: true, message: 'Quiz created successfully', severity: 'success' });
+      setQuizForm({
+        title: "",
+        passing_score: 50,
+        time_limit: 10,
+        max_attempts: 1,
+      });
+      setSnackbar({
+        open: true,
+        message: "Quiz created successfully",
+        severity: "success",
+      });
       fetchCourseModules(); // Refresh to get updated data
     } catch (error) {
-      console.error('Error creating quiz:', error);
-      setSnackbar({ open: true, message: 'Failed to create quiz', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: "Failed to create quiz",
+        severity: "error",
+      });
     }
   };
 
   const handleDeleteQuiz = async (quizId) => {
     try {
       await deleteQuiz(quizId);
-      setSnackbar({ open: true, message: 'Quiz deleted successfully', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: "Quiz deleted successfully",
+        severity: "success",
+      });
       fetchCourseModules(); // Refresh to get updated data
     } catch (error) {
-      console.error('Error deleting quiz:', error);
-      setSnackbar({ open: true, message: 'Failed to delete quiz', severity: 'error' });
+      console.error("Error deleting quiz:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete quiz",
+        severity: "error",
+      });
     }
   };
 
@@ -369,48 +523,97 @@ const CourseDetailView = ({ course, onBack }) => {
 
   // Assignment CRUD handlers
   const handleCreateAssignment = async () => {
+    let createdLesson = null;
     try {
+
+
       // First create a lesson for the assignment
-      const moduleIndex = modules.findIndex(module => module.id === selectedModuleId);
+      const moduleIndex = modules.findIndex(
+        (module) => module.id === selectedModuleId
+      );
       const orderNum = modules[moduleIndex].lessons.length + 1;
-      
-      const newLesson = await createLesson(course.id, selectedModuleId, {
+
+      const lessonData = {
         title: assignmentForm.title,
-        contentType: 'assignment',
+        contentType: "assignment",
         duration: 0,
-        orderNum
-      });
-      
+        orderNum,
+      };
+
+
+      createdLesson = await createLesson(
+        course.id,
+        selectedModuleId,
+        lessonData
+      );
       // Then create the assignment linked to this lesson
-      await createAssignment(course.id, newLesson.id, assignmentForm);
-      
+      const createdAssignment = await createAssignment(
+        course.id,
+        createdLesson.id,
+        assignmentForm
+      );
+
       setOpenAssignmentDialog(false);
-      setAssignmentForm({ title: '', description: '', deadline: '', points: 100 });
-      setSnackbar({ open: true, message: 'Assignment created successfully', severity: 'success' });
+      setAssignmentForm({ title: "", description: "", deadline: "" });
+      setSnackbar({
+        open: true,
+        message: "Assignment created successfully",
+        severity: "success",
+      });
       fetchCourseModules(); // Refresh to get updated data
     } catch (error) {
-      console.error('Error creating assignment:', error);
-      setSnackbar({ open: true, message: 'Failed to create assignment', severity: 'error' });
+
+      // If lesson was created but assignment failed, clean up the lesson
+      if (createdLesson && createdLesson.id) {
+        try {
+          await deleteLesson(course.id, createdLesson.id);
+        } catch (cleanupError) {
+          console.error("Failed to cleanup lesson:", cleanupError);
+        }
+      }
+
+      // Display specific validation messages from your validation middleware
+      let errorMessage = "Failed to create assignment";
+      if (error.isValidationError) {
+        errorMessage = error.message; // This will contain the validation messages
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      setSnackbar({ open: true, message: errorMessage, severity: "error" });
     }
   };
 
   const handleDeleteAssignment = async (assignmentId) => {
     try {
       await deleteAssignment(assignmentId);
-      setSnackbar({ open: true, message: 'Assignment deleted successfully', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: "Assignment deleted successfully",
+        severity: "success",
+      });
       fetchCourseModules(); // Refresh to get updated data
     } catch (error) {
-      console.error('Error deleting assignment:', error);
-      setSnackbar({ open: true, message: 'Failed to delete assignment', severity: 'error' });
+      console.error("Error deleting assignment:", error);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete assignment",
+        severity: "error",
+      });
     }
   };
 
-
-
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 400,
+        }}
+      >
+        <CircleLoader size={50} color="#7f00ff" />
       </Box>
     );
   }
@@ -419,7 +622,9 @@ const CourseDetailView = ({ course, onBack }) => {
     return (
       <Alert severity="error" sx={{ mb: 2 }}>
         {error}
-        <Button onClick={fetchCourseModules} sx={{ ml: 2 }}>Retry</Button>
+        <Button onClick={fetchCourseModules} sx={{ ml: 2 }}>
+          Retry
+        </Button>
       </Alert>
     );
   }
@@ -428,22 +633,25 @@ const CourseDetailView = ({ course, onBack }) => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={onBack}
-          sx={{ mb: 2 }}
-        >
+        <Button startIcon={<ArrowBackIcon />} onClick={onBack} sx={{ mb: 2 }}>
           Back to Courses
         </Button>
-        
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2,
+          }}
+        >
           <Box>
             <Typography variant="h4" gutterBottom>
               {course.title}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
               <Chip
-                label={course.is_published ? 'Published' : 'Draft'}
+                label={course.is_published ? "Published" : "Draft"}
                 color={course.is_published ? "success" : "warning"}
               />
               {!course.is_approved && (
@@ -451,7 +659,7 @@ const CourseDetailView = ({ course, onBack }) => {
               )}
             </Box>
           </Box>
-          
+
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -460,7 +668,7 @@ const CourseDetailView = ({ course, onBack }) => {
             Add Module
           </Button>
         </Box>
-        
+
         {course.description && (
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             {course.description}
@@ -472,7 +680,7 @@ const CourseDetailView = ({ course, onBack }) => {
       <Typography variant="h5" gutterBottom>
         Course Modules ({modules.length})
       </Typography>
-      
+
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Drag modules to reorder them
       </Typography>
@@ -488,17 +696,18 @@ const CourseDetailView = ({ course, onBack }) => {
             strategy={verticalListSortingStrategy}
           >
             {modules.map((module) => (
-              <SortableModule 
-                key={module.id} 
-                module={module} 
-                onLessonDragEnd={(event) => handleLessonDragEnd(event, module.id)}
+              <SortableModule
+                key={module.id}
+                module={module}
+                onLessonDragEnd={(event) =>
+                  handleLessonDragEnd(event, module.id)
+                }
                 onDeleteModule={handleDeleteModule}
                 onEditModule={handleEditModule}
                 onAddLesson={(moduleId) => {
                   setSelectedModuleId(moduleId);
                   setOpenLessonDialog(true);
                 }}
-    
                 onDeleteLesson={handleDeleteLesson}
                 onAddQuiz={(moduleId) => {
                   setSelectedModuleId(moduleId);
@@ -518,7 +727,12 @@ const CourseDetailView = ({ course, onBack }) => {
       )}
 
       {/* Module Creation Dialog */}
-      <Dialog open={openModuleDialog} onClose={() => setOpenModuleDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openModuleDialog}
+        onClose={() => setOpenModuleDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Create New Module</DialogTitle>
         <DialogContent>
           <TextField
@@ -528,7 +742,9 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={moduleForm.title}
-            onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
+            onChange={(e) =>
+              setModuleForm({ ...moduleForm, title: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -539,23 +755,34 @@ const CourseDetailView = ({ course, onBack }) => {
             rows={3}
             variant="outlined"
             value={moduleForm.description}
-            onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+            onChange={(e) =>
+              setModuleForm({ ...moduleForm, description: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenModuleDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateModule} variant="contained" disabled={!moduleForm.title}>
+          <Button
+            onClick={handleCreateModule}
+            variant="contained"
+            disabled={!moduleForm.title}
+          >
             Create Module
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Module Edit Dialog */}
-      <Dialog open={openEditModuleDialog} onClose={() => {
-        setOpenEditModuleDialog(false);
-        setEditingModule(null);
-        setModuleForm({ title: '', description: '' });
-      }} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openEditModuleDialog}
+        onClose={() => {
+          setOpenEditModuleDialog(false);
+          setEditingModule(null);
+          setModuleForm({ title: "", description: "" });
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Edit Module</DialogTitle>
         <DialogContent>
           <TextField
@@ -565,7 +792,9 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={moduleForm.title}
-            onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
+            onChange={(e) =>
+              setModuleForm({ ...moduleForm, title: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -576,23 +805,49 @@ const CourseDetailView = ({ course, onBack }) => {
             rows={3}
             variant="outlined"
             value={moduleForm.description}
-            onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+            onChange={(e) =>
+              setModuleForm({ ...moduleForm, description: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setOpenEditModuleDialog(false);
-            setEditingModule(null);
-            setModuleForm({ title: '', description: '' });
-          }}>Cancel</Button>
-          <Button onClick={handleUpdateModule} variant="contained" disabled={!moduleForm.title}>
+          <Button
+            onClick={() => {
+              setOpenEditModuleDialog(false);
+              setEditingModule(null);
+              setModuleForm({ title: "", description: "" });
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdateModule}
+            variant="contained"
+            disabled={!moduleForm.title}
+          >
             Update Module
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Lesson Creation Dialog */}
-      <Dialog open={openLessonDialog} onClose={() => setOpenLessonDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openLessonDialog}
+        onClose={() => {
+          setOpenLessonDialog(false);
+          setLessonForm({
+            title: "",
+            contentType: "video",
+            content: "",
+            duration: 0,
+            orderNum: 1,
+            uploadType: "url",
+            file: null,
+          });
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Create New Lesson</DialogTitle>
         <DialogContent>
           <TextField
@@ -602,23 +857,27 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={lessonForm.title}
-            onChange={(e) => setLessonForm({ ...lessonForm, title: e.target.value })}
+            onChange={(e) =>
+              setLessonForm({ ...lessonForm, title: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
-              select
-              margin="dense"
-              label="Content Type"
-              fullWidth
-              variant="outlined"
-              value={lessonForm.contentType}
-              onChange={(e) => setLessonForm({ ...lessonForm, contentType: e.target.value })}
-              SelectProps={{ native: true }}
-              sx={{ mb: 2 }}
-            >
-              <option value="video">Video</option>
-              <option value="text">Text</option>
-            </TextField>
+            select
+            margin="dense"
+            label="Content Type"
+            fullWidth
+            variant="outlined"
+            value={lessonForm.contentType}
+            onChange={(e) =>
+              setLessonForm({ ...lessonForm, contentType: e.target.value })
+            }
+            SelectProps={{ native: true }}
+            sx={{ mb: 2 }}
+          >
+            <option value="video">Video</option>
+            <option value="text">Text</option>
+          </TextField>
           <TextField
             select
             margin="dense"
@@ -626,50 +885,93 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={lessonForm.uploadType}
-            onChange={(e) => setLessonForm({ ...lessonForm, uploadType: e.target.value, contentUrl: '', file: null })}
+            onChange={(e) =>
+              setLessonForm({
+                ...lessonForm,
+                uploadType: e.target.value,
+                content: "",
+                file: null,
+              })
+            }
             SelectProps={{ native: true }}
             sx={{ mb: 2 }}
           >
-            <option value="url">{lessonForm.contentType === 'video' ? 'YouTube/Video URL' : 'Document URL'}</option>
-            <option value="file">{lessonForm.contentType === 'video' ? 'Upload Video File' : 'Upload PDF File'}</option>
+            <option value="url">
+              {lessonForm.contentType === "video"
+                ? "YouTube/Video URL"
+                : "Document URL"}
+            </option>
+            <option value="file">
+              {lessonForm.contentType === "video"
+                ? "Upload Video File"
+                : "Upload Document File"}
+            </option>
           </TextField>
-          
-          {lessonForm.uploadType === 'url' ? (
+
+          {lessonForm.uploadType === "url" ? (
             <TextField
               margin="dense"
-              label={lessonForm.contentType === 'video' ? 'YouTube/Video URL' : 'Document URL'}
+              label={
+                lessonForm.contentType === "video"
+                  ? "YouTube/Video URL"
+                  : "Document URL"
+              }
               fullWidth
               variant="outlined"
-              value={lessonForm.contentUrl}
-              onChange={(e) => setLessonForm({ ...lessonForm, contentUrl: e.target.value })}
+              value={lessonForm.content}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, content: e.target.value })
+              }
               required
-              helperText={lessonForm.contentType === 'video' ? 'Enter YouTube URL or direct video link' : 'Enter a valid document URL'}
+              helperText={
+                lessonForm.contentType === "video"
+                  ? "Enter YouTube URL or direct video link"
+                  : "Enter a valid document URL"
+              }
               sx={{ mb: 2 }}
             />
           ) : (
             <Box sx={{ mb: 2 }}>
               <input
-                accept={lessonForm.contentType === 'video' ? 'video/*' : 'application/pdf'}
-                style={{ display: 'none' }}
+                accept={getAcceptAttribute(lessonForm.contentType)}
+                style={{ display: "none" }}
                 id="lesson-file-upload"
                 type="file"
-                onChange={(e) => setLessonForm({ ...lessonForm, file: e.target.files[0] })}
+                onChange={(e) =>
+                  setLessonForm({ ...lessonForm, file: e.target.files[0] })
+                }
               />
               <label htmlFor="lesson-file-upload">
                 <Button
                   variant="outlined"
                   component="span"
                   fullWidth
-                  sx={{ mb: 1, textTransform: 'none' }}
+                  sx={{ mb: 1, textTransform: "none" }}
                 >
-                  {lessonForm.file ? lessonForm.file.name : `Choose ${lessonForm.contentType === 'video' ? 'Video' : 'PDF'} File`}
+                  {lessonForm.file
+                    ? lessonForm.file.name
+                    : `Choose ${
+                        lessonForm.contentType === "video"
+                          ? "Video"
+                          : "Document"
+                      } File`}
                 </Button>
               </label>
               {lessonForm.file && (
                 <Typography variant="caption" color="text.secondary">
-                  File size: {(lessonForm.file.size / (1024 * 1024)).toFixed(2)} MB
+                  File size: {(lessonForm.file.size / (1024 * 1024)).toFixed(2)}{" "}
+                  MB
                 </Typography>
               )}
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+              >
+                {lessonForm.contentType === "video"
+                  ? "Supported: MP4, AVI, MOV, WMV, FLV, WebM, MKV (Max 25MB)"
+                  : "Supported: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT (Max 5MB)"}
+              </Typography>
             </Box>
           )}
           <TextField
@@ -679,25 +981,48 @@ const CourseDetailView = ({ course, onBack }) => {
             variant="outlined"
             type="number"
             value={lessonForm.duration}
-            onChange={(e) => setLessonForm({ ...lessonForm, duration: parseInt(e.target.value) || 0 })}
+            onChange={(e) =>
+              setLessonForm({
+                ...lessonForm,
+                duration: parseInt(e.target.value) || 0,
+              })
+            }
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenLessonDialog(false)}>Cancel</Button>
-          <Button 
-             onClick={handleCreateLesson} 
-             variant="contained" 
-             disabled={!lessonForm.title || (lessonForm.uploadType === 'url' && !lessonForm.contentUrl) || (lessonForm.uploadType === 'file' && !lessonForm.file)}
-           >
+          <Button onClick={() => {
+            setOpenLessonDialog(false);
+            setLessonForm({
+              title: "",
+              contentType: "video",
+              content: "",
+              duration: 0,
+              orderNum: 1,
+              uploadType: "url",
+              file: null,
+            });
+          }}>Cancel</Button>
+          <Button
+            onClick={handleCreateLesson}
+            variant="contained"
+            disabled={
+              !lessonForm.title ||
+              (lessonForm.uploadType === "url" && !lessonForm.content) ||
+              (lessonForm.uploadType === "file" && !lessonForm.file)
+            }
+          >
             Create Lesson
           </Button>
         </DialogActions>
       </Dialog>
 
-
-
       {/* Quiz Creation Dialog */}
-      <Dialog open={openQuizDialog} onClose={() => setOpenQuizDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openQuizDialog}
+        onClose={() => setOpenQuizDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Create New Quiz</DialogTitle>
         <DialogContent>
           <TextField
@@ -707,7 +1032,9 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={quizForm.title}
-            onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
+            onChange={(e) =>
+              setQuizForm({ ...quizForm, title: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -717,7 +1044,12 @@ const CourseDetailView = ({ course, onBack }) => {
             variant="outlined"
             type="number"
             value={quizForm.passing_score}
-                        onChange={(e) => setQuizForm({ ...quizForm, passing_score: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setQuizForm({
+                ...quizForm,
+                passing_score: parseInt(e.target.value),
+              })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -727,7 +1059,9 @@ const CourseDetailView = ({ course, onBack }) => {
             variant="outlined"
             type="number"
             value={quizForm.time_limit}
-                        onChange={(e) => setQuizForm({ ...quizForm, time_limit: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setQuizForm({ ...quizForm, time_limit: parseInt(e.target.value) })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -737,19 +1071,33 @@ const CourseDetailView = ({ course, onBack }) => {
             variant="outlined"
             type="number"
             value={quizForm.max_attempts}
-                        onChange={(e) => setQuizForm({ ...quizForm, max_attempts: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setQuizForm({
+                ...quizForm,
+                max_attempts: parseInt(e.target.value),
+              })
+            }
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenQuizDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateQuiz} variant="contained" disabled={!quizForm.title}>
+          <Button
+            onClick={handleCreateQuiz}
+            variant="contained"
+            disabled={!quizForm.title}
+          >
             Create Quiz
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Assignment Creation Dialog */}
-      <Dialog open={openAssignmentDialog} onClose={() => setOpenAssignmentDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openAssignmentDialog}
+        onClose={() => setOpenAssignmentDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Create New Assignment</DialogTitle>
         <DialogContent>
           <TextField
@@ -759,7 +1107,9 @@ const CourseDetailView = ({ course, onBack }) => {
             fullWidth
             variant="outlined"
             value={assignmentForm.title}
-            onChange={(e) => setAssignmentForm({ ...assignmentForm, title: e.target.value })}
+            onChange={(e) =>
+              setAssignmentForm({ ...assignmentForm, title: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -770,7 +1120,12 @@ const CourseDetailView = ({ course, onBack }) => {
             rows={3}
             variant="outlined"
             value={assignmentForm.description}
-            onChange={(e) => setAssignmentForm({ ...assignmentForm, description: e.target.value })}
+            onChange={(e) =>
+              setAssignmentForm({
+                ...assignmentForm,
+                description: e.target.value,
+              })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -780,36 +1135,33 @@ const CourseDetailView = ({ course, onBack }) => {
             variant="outlined"
             type="datetime-local"
             value={assignmentForm.deadline}
-            onChange={(e) => setAssignmentForm({ ...assignmentForm, deadline: e.target.value })}
+            onChange={(e) =>
+              setAssignmentForm({ ...assignmentForm, deadline: e.target.value })
+            }
             sx={{ mb: 2 }}
             InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            margin="dense"
-            label="Points"
-            fullWidth
-            variant="outlined"
-            type="number"
-            value={assignmentForm.points}
-            onChange={(e) => setAssignmentForm({ ...assignmentForm, points: parseInt(e.target.value) })}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenAssignmentDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateAssignment} variant="contained" disabled={!assignmentForm.title}>
+          <Button
+            onClick={handleCreateAssignment}
+            variant="contained"
+            disabled={!assignmentForm.title}
+          >
             Create Assignment
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Quiz Management Dialog */}
-      <Dialog 
-        open={openQuizManagementDialog} 
+      <Dialog
+        open={openQuizManagementDialog}
         onClose={() => {
           setOpenQuizManagementDialog(false);
           setSelectedLessonForQuiz(null);
-        }} 
-        maxWidth="lg" 
+        }}
+        maxWidth="lg"
         fullWidth
       >
         <DialogTitle>
@@ -817,17 +1169,19 @@ const CourseDetailView = ({ course, onBack }) => {
         </DialogTitle>
         <DialogContent>
           {selectedLessonForQuiz && (
-            <QuizManagement 
-              lessonId={selectedLessonForQuiz.id} 
+            <QuizManagement
+              lessonId={selectedLessonForQuiz.id}
               lessonTitle={selectedLessonForQuiz.title}
             />
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setOpenQuizManagementDialog(false);
-            setSelectedLessonForQuiz(null);
-          }}>
+          <Button
+            onClick={() => {
+              setOpenQuizManagementDialog(false);
+              setSelectedLessonForQuiz(null);
+            }}
+          >
             Close
           </Button>
         </DialogActions>

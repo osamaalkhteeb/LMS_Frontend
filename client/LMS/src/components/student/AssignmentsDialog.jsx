@@ -13,11 +13,13 @@ import {
   IconButton,
 } from "@mui/material";
 import { Close, AttachFile } from "@mui/icons-material";
+import { validateFileUpload, getAcceptAttribute, SUPPORTED_FILE_TYPES } from '../../utils/constants';
 
 const AssignmentDialog = ({
   open,
   assignment,
   file,
+  fileError,
   onClose,
   onFileChange,
   onSubmit,
@@ -93,6 +95,7 @@ const AssignmentDialog = ({
                 id="assignment-upload"
                 onChange={onFileChange}
                 style={{ display: "none" }}
+                inputProps={{ accept: getAcceptAttribute('document') }}
               />
               <label htmlFor="assignment-upload">
                 <Button
@@ -106,7 +109,15 @@ const AssignmentDialog = ({
               </label>
               {file && (
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  Selected file: {file.name}
+                  Selected file: {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                </Typography>
+              )}
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                {SUPPORTED_FILE_TYPES.DOCUMENT.description}
+              </Typography>
+              {fileError && (
+                <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                  {fileError}
                 </Typography>
               )}
             </Box>

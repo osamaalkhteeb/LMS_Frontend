@@ -8,9 +8,12 @@ import {
   Paper,
   Tabs,
   Tab,
-  CircularProgress,
   Alert,
+  useTheme,
+  useMediaQuery,
+  styled
 } from "@mui/material";
+import { CircleLoader } from 'react-spinners';
 import { useAuth } from "../../hooks/useAuth";
 import StatCard from "../../components/admin/StatCard";
 import UserManagement from "../../components/admin/UserManagement";
@@ -19,6 +22,33 @@ import SystemHealth from "../../components/admin/SystemHealth";
 import AnalyticsTab from "../../components/admin/AnalyticsTab";
 import SystemReports from "../../components/admin/SystemReports";
 import { FiUsers, FiBookOpen, FiUserCheck, FiActivity } from "react-icons/fi";
+
+const ModernPaper = styled(Paper)(({ theme }) => ({
+  borderRadius: "12px",
+  boxShadow: theme.shadows[2],
+  transition: "all 0.3s ease",
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+  },
+}));
+
+const ModernTabs = styled(Tabs)(({ theme }) => ({
+  "& .MuiTabs-indicator": {
+    height: "4px",
+    borderRadius: "2px",
+  },
+}));
+
+const ModernTab = styled(Tab)(({ theme }) => ({
+  textTransform: "none",
+  fontWeight: 500,
+  fontSize: "0.875rem",
+  minWidth: "unset",
+  padding: theme.spacing(1, 2),
+  "&.Mui-selected": {
+    color: theme.palette.primary.main,
+  },
+}));
 import { getUserStats } from "../../services/userService";
 import {
   getCourseStats,
@@ -27,6 +57,8 @@ import {
 
 const AdminDashboard = () => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [activeTab, setActiveTab] = useState("overview");
   const [stats, setStats] = useState({
     userStats: null,
@@ -78,8 +110,16 @@ const AdminDashboard = () => {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       {/* Header Section */}
-      <Box mb={4}>
-        <Box display="flex" alignItems="center" gap={3} mb={4}>
+      <Box
+        sx={{
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          borderRadius: 3,
+          p: 4,
+          mb: 4,
+          color: 'white',
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={3} mb={2}>
           <Avatar
             src={
               admin.avatar ? `${admin.avatar}?t=${Date.now()}` : admin.avatar
@@ -88,7 +128,8 @@ const AdminDashboard = () => {
               width: 80,
               height: 80,
               fontSize: "2rem",
-              bgcolor: "primary.main",
+              bgcolor: "rgba(255, 255, 255, 0.2)",
+              border: '3px solid rgba(255, 255, 255, 0.3)',
             }}
           >
             {admin.name
@@ -97,18 +138,23 @@ const AdminDashboard = () => {
               .join("")}
           </Avatar>
           <Box>
-            <Typography variant="h4" fontWeight="bold">
-              Welcome, {admin.name}
+            <Typography variant="h4" fontWeight="bold" sx={{ color: 'white' }}>
+              Welcome back, {admin.name}!
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              {admin.email}
             </Typography>
           </Box>
         </Box>
+      </Box>
 
+      <Box mb={4}>
         {/* Stats Cards */}
         {stats.loading ? (
-          <Grid container spacing={3} mb={4}>
+          <Grid container spacing={{ xs: 2, md: 3 }} mb={4}>
             {[...Array(4)].map((_, i) => (
               <Grid item xs={12} sm={6} md={3} key={i}>
-                <Paper sx={{ p: 2, textAlign: "center" }}>
+                <ModernPaper sx={{ p: 2, textAlign: "center" }}>
                   <Box
                     sx={{
                       height: 80,
@@ -117,9 +163,9 @@ const AdminDashboard = () => {
                       justifyContent: "center",
                     }}
                   >
-                    <CircularProgress size={24} />
+                    <CircleLoader size={24} color="#7f00ff" />
                   </Box>
-                </Paper>
+                </ModernPaper>
               </Grid>
             ))}
           </Grid>
@@ -128,7 +174,7 @@ const AdminDashboard = () => {
             {stats.error}
           </Alert>
         ) : (
-          <Grid container spacing={3} mb={4}>
+          <Grid container spacing={{ xs: 2, md: 3 }} mb={4}>
             <Grid item xs={12} sm={6} md={3}>
               <StatCard
                 title="Total Users"
@@ -139,6 +185,7 @@ const AdminDashboard = () => {
                 })()}
                 icon={FiUsers}
                 color="primary"
+                variant="gradient"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -151,6 +198,7 @@ const AdminDashboard = () => {
                 })()}
                 icon={FiBookOpen}
                 color="warning"
+                variant="gradient"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -163,6 +211,7 @@ const AdminDashboard = () => {
                 })()}
                 icon={FiUserCheck}
                 color="success"
+                variant="gradient"
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -174,7 +223,8 @@ const AdminDashboard = () => {
                   return value;
                 })()}
                 icon={FiActivity}
-                color="info"
+                color="secondary"
+                variant="gradient"
               />
             </Grid>
           </Grid>
@@ -182,26 +232,26 @@ const AdminDashboard = () => {
       </Box>
 
       {/* Tabs Section */}
-      <Paper sx={{ borderRadius: 2, mb: 4 }}>
-        <Tabs
+      <ModernPaper sx={{ mb: 4 }}>
+        <ModernTabs
           value={activeTab}
           onChange={(event, newValue) => setActiveTab(newValue)}
           variant="scrollable"
           scrollButtons="auto"
         >
-          <Tab value="overview" label="Overview" />
-          <Tab value="users" label="User Management" />
-          <Tab value="courses" label="Course Approvals" />
-          <Tab value="analytics" label="Analytics" />
-          <Tab value="system" label="System Health" />
-          <Tab value="reports" label="Reports" />
-        </Tabs>
-      </Paper>
+          <ModernTab value="overview" label="Overview" />
+          <ModernTab value="users" label="User Management" />
+          <ModernTab value="courses" label="Course Approvals" />
+          <ModernTab value="analytics" label="Analytics" />
+          <ModernTab value="system" label="System Health" />
+          <ModernTab value="reports" label="Reports" />
+        </ModernTabs>
+      </ModernPaper>
 
       {/* Tab Content */}
       {activeTab === "overview" && (
         <Box sx={{ mb: 4 }}>
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
+          <ModernPaper sx={{ p: 3 }}>
             <Typography variant="h6" fontWeight="semibold" mb={3}>
               Quick Stats
             </Typography>
@@ -263,7 +313,7 @@ const AdminDashboard = () => {
                 </Box>
               </Grid>
             </Grid>
-          </Paper>
+          </ModernPaper>
         </Box>
       )}
       {activeTab === "users" && <UserManagement />}

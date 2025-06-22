@@ -9,7 +9,6 @@ import {
   CardContent,
   Chip,
   Alert,
-  CircularProgress,
   LinearProgress,
   Grid,
   Divider,
@@ -18,6 +17,7 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material';
+import { CircleLoader } from 'react-spinners';
 import {
   CheckCircle as CorrectIcon,
   Cancel as IncorrectIcon,
@@ -62,28 +62,65 @@ const QuizResultsPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+        }}
+      >
+        <CircleLoader size={50} color="#7f00ff" />
+      </Box>
     );
   }
 
   if (error || !results) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert severity="error">
-          {error || 'Quiz results not found'}
-        </Alert>
-        <Button 
-          startIcon={<BackIcon />} 
-          onClick={() => navigate(-1)}
-          sx={{ mt: 2 }}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          p: 3
+        }}
+      >
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            textAlign: 'center',
+            maxWidth: 500,
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
         >
-          Go Back
-        </Button>
-      </Container>
+          <Alert severity="error" sx={{ borderRadius: 2, mb: 3 }}>
+            {error || 'Quiz results not found'}
+          </Alert>
+          <Button 
+            startIcon={<BackIcon />} 
+            onClick={() => navigate(-1)}
+            variant="contained"
+            sx={{ 
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: 'none',
+              '&:hover': {
+                boxShadow: 'none',
+                opacity: 0.9
+              }
+            }}
+          >
+            Go Back
+          </Button>
+        </Paper>
+      </Box>
     );
   }
 
@@ -93,23 +130,50 @@ const QuizResultsPage = () => {
   const grade = getGradeFromPercentage(percentage);
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box display="flex" alignItems="center" mb={3}>
-        <Button 
-          startIcon={<BackIcon />} 
-          onClick={() => navigate('/dashboard/student')}
-          sx={{ mr: 2 }}
-        >
-          Back to Dashboard
-        </Button>
-        <Typography variant="h4" fontWeight="bold">
-          Quiz Results
-        </Typography>
-      </Box>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        p: 3
+      }}
+    >
+      <Box sx={{ maxWidth: 900, mx: 'auto' }}>
+        {/* Header */}
+        <Box display="flex" alignItems="center" mb={3}>
+          <Button 
+            startIcon={<BackIcon />} 
+            onClick={() => navigate('/dashboard/student')}
+            sx={{ 
+              mr: 2,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              bgcolor: 'background.paper',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              '&:hover': {
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }
+            }}
+          >
+            Back to Dashboard
+          </Button>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+            Quiz Results
+          </Typography>
+        </Box>
 
-      {/* Score Overview */}
-      <Paper sx={{ p: 4, mb: 3, textAlign: 'center' }}>
+        {/* Score Overview */}
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 4, 
+            mb: 3, 
+            textAlign: 'center',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
         <QuizIcon sx={{ fontSize: 64, color: `${scoreColor}.main`, mb: 2 }} />
         <Typography variant="h3" fontWeight="bold" color={`${scoreColor}.main`} gutterBottom>
           {results.score || 0}/{results.total_score || results.totalScore || 100}
@@ -138,7 +202,17 @@ const QuizResultsPage = () => {
       {/* Statistics */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card 
+            elevation={2}
+            sx={{ 
+              borderRadius: 2,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+              }
+            }}
+          >
             <CardContent sx={{ textAlign: 'center' }}>
               <CorrectIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold">
@@ -152,7 +226,17 @@ const QuizResultsPage = () => {
         </Grid>
         
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card 
+            elevation={2}
+            sx={{ 
+              borderRadius: 2,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+              }
+            }}
+          >
             <CardContent sx={{ textAlign: 'center' }}>
               <IncorrectIcon sx={{ fontSize: 40, color: 'error.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold">
@@ -166,7 +250,17 @@ const QuizResultsPage = () => {
         </Grid>
         
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card 
+            elevation={2}
+            sx={{ 
+              borderRadius: 2,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+              }
+            }}
+          >
             <CardContent sx={{ textAlign: 'center' }}>
               <QuizIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold">
@@ -180,7 +274,17 @@ const QuizResultsPage = () => {
         </Grid>
         
         <Grid item xs={12} sm={6} md={3}>
-          <Card>
+          <Card 
+            elevation={2}
+            sx={{ 
+              borderRadius: 2,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+              }
+            }}
+          >
             <CardContent sx={{ textAlign: 'center' }}>
               <TimerIcon sx={{ fontSize: 40, color: 'info.main', mb: 1 }} />
               <Typography variant="h6" fontWeight="bold">
@@ -196,9 +300,17 @@ const QuizResultsPage = () => {
 
 
 
-      {/* Detailed Results */}
-      {results.question_results && (
-        <Paper sx={{ p: 3, mb: 3 }}>
+        {/* Detailed Results */}
+        {results.question_results && (
+          <Paper 
+            elevation={4}
+            sx={{ 
+              p: 3, 
+              mb: 3,
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+            }}
+          >
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">
               Question-by-Question Results
@@ -207,6 +319,11 @@ const QuizResultsPage = () => {
               onClick={() => setShowDetailedResults(!showDetailedResults)}
               variant="outlined"
               size="small"
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600
+              }}
             >
               {showDetailedResults ? 'Hide Details' : 'Show Details'}
             </Button>
@@ -262,8 +379,16 @@ const QuizResultsPage = () => {
         </Paper>
       )}
 
-      {/* Actions */}
-      <Paper sx={{ p: 3, textAlign: 'center' }}>
+        {/* Actions */}
+        <Paper 
+          elevation={4}
+          sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+          }}
+        >
         <Typography variant="h6" gutterBottom>
           What's Next?
         </Typography>
@@ -272,6 +397,13 @@ const QuizResultsPage = () => {
             variant="outlined" 
             startIcon={<BackIcon />}
             onClick={() => navigate('/dashboard/student')}
+            sx={{
+              py: 1.5,
+              px: 3,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600
+            }}
           >
             Back to Dashboard
           </Button>
@@ -282,6 +414,18 @@ const QuizResultsPage = () => {
               startIcon={<RetakeIcon />}
               onClick={() => navigate(`/quiz/${quizId}`)}
               color="primary"
+              sx={{
+                py: 1.5,
+                px: 3,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: 'none',
+                '&:hover': {
+                  boxShadow: 'none',
+                  opacity: 0.9
+                }
+              }}
             >
               Retake Quiz
             </Button>
@@ -290,14 +434,21 @@ const QuizResultsPage = () => {
           <Button 
             variant="outlined" 
             startIcon={<PerformanceIcon />}
-            onClick={() => navigate('/dashboard/student?tab=2')} // Navigate to quizzes tab
+            onClick={() => navigate('/dashboard/student?tab=2')}
+            sx={{
+              py: 1.5,
+              px: 3,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600
+            }}
           >
             View All Quizzes
           </Button>
         </Box>
         
         {percentage < (results.passing_score || 60) && (
-          <Alert severity="info" sx={{ mt: 2 }}>
+          <Alert severity="info" sx={{ mt: 2, borderRadius: 2 }}>
             <Typography variant="body2">
               Don't worry! Review the material and try again. You can do better next time!
             </Typography>
@@ -305,14 +456,15 @@ const QuizResultsPage = () => {
         )}
         
         {percentage >= 90 && (
-          <Alert severity="success" sx={{ mt: 2 }}>
+          <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}>
             <Typography variant="body2">
               Congratulations! You've demonstrated excellent mastery of this material!
             </Typography>
           </Alert>
         )}
-      </Paper>
-    </Container>
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 

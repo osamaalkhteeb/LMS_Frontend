@@ -7,7 +7,6 @@ import {
   Grid,
   LinearProgress,
   Typography,
-  CircularProgress,
   Alert,
   Dialog,
   DialogTitle,
@@ -21,9 +20,10 @@ import {
   People as PeopleIcon,
   School as SchoolIcon
 } from "@mui/icons-material";
+import { ClockLoader } from "react-spinners";
 import { useCourseAnalytics } from "../../hooks/useAnalytics";
 
-const AnalyticsTab = ({ analytics, loading, error }) => {
+const AnalyticsTab = ({ analytics, loading, error, onRefresh }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   
@@ -50,7 +50,7 @@ const AnalyticsTab = ({ analytics, loading, error }) => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight={300}>
-        <CircularProgress />
+        <ClockLoader size={50} color="#1976d2" />
       </Box>
     );
   }
@@ -65,17 +65,51 @@ const AnalyticsTab = ({ analytics, loading, error }) => {
 
   if (!analytics || !analytics.analytics || analytics.analytics.length === 0) {
     return (
-      <Alert severity="info" sx={{ mb: 2 }}>
-        No published courses found. Create and publish courses to view analytics.
-      </Alert>
+      <Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Typography variant="h5" fontWeight="bold">
+            Course Analytics
+          </Typography>
+          {onRefresh && (
+            <Button
+              variant="outlined"
+              startIcon={<TrendingUpIcon />}
+              onClick={onRefresh}
+              disabled={loading}
+            >
+              Refresh Analytics
+            </Button>
+          )}
+        </Box>
+        
+        <Alert severity="info" sx={{ mb: 2 }}>
+          No published courses found. Create and publish courses to view analytics.
+        </Alert>
+      </Box>
     );
   }
 
   return (
     <>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h5" fontWeight="bold">
+          Course Analytics
+        </Typography>
+        {onRefresh && (
+          <Button
+            variant="outlined"
+            startIcon={<TrendingUpIcon />}
+            onClick={onRefresh}
+            disabled={loading}
+          >
+            Refresh Analytics
+          </Button>
+        )}
+      </Box>
+      
       <Grid container spacing={3}>
         {analytics?.analytics?.map((course) => (
-          <Grid size={{ xs: 12, md: 4 }} key={course.id}>
+          <Grid item xs={12} md={4} key={course.id}>
             <Card sx={{ height: '100%', borderRadius: 2, position: 'relative' }}>
               <CardContent>
                 <Typography variant="h6" fontWeight="bold" mb={2} noWrap>
@@ -154,7 +188,7 @@ const AnalyticsTab = ({ analytics, loading, error }) => {
         <DialogContent>
           {detailsLoading ? (
             <Box display="flex" justifyContent="center" py={4}>
-              <CircularProgress />
+              <ClockLoader size={50} color="#1976d2" />
             </Box>
           ) : courseDetails ? (
             <Grid container spacing={3}>

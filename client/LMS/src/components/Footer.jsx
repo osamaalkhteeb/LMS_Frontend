@@ -19,63 +19,95 @@ const Footer = () => {
       sx={{
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        py: 1,
+        py: 6,
         borderTop: `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Container maxWidth="xl">
-        <Grid container spacing={2}>
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
           {/* Section 1: About */}
           <Grid item xs={12} md={4}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <Box sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              mb: 3,
+              '&:hover': {
+                cursor: 'pointer'
+              }
+            }}>
               <School sx={{ 
-                mr: 1, 
-                fontSize: 28,
-                color: theme.palette.text.primary
+                mr: 1.5, 
+                fontSize: 32,
+                color: theme.palette.primary.main
               }} />
-              <Typography variant="h5" fontWeight="bold">
-                EduGo
+              <Typography variant="h5" fontWeight="700" sx={{
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                SkillUp
               </Typography>
             </Box>
             <Typography
               variant="body1"
               sx={{ 
                 mb: 3, 
-                lineHeight: 1.6,
-                color: theme.palette.text.secondary
+                lineHeight: 1.7,
+                color: theme.palette.text.secondary,
+                fontSize: '0.95rem'
               }}
             >
               An advanced educational platform designed to provide the best
-              courses and learning resources to help you develop your skills and
-              achieve your professional and academic goals.
+              courses and learning resources to help you develop your skills.
             </Typography>
 
             {/* Contact Info */}
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Email sx={{ 
-                  mr: 1, 
-                  fontSize: 18,
-                  color: theme.palette.text.secondary 
-                }} />
-                <Typography variant="body2">nour3lwan99@gmail.com</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Phone sx={{ 
-                  mr: 1, 
-                  fontSize: 18,
-                  color: theme.palette.text.secondary 
-                }} />
-                <Typography variant="body2">+962 7 2839 753</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <LocationOn sx={{ 
-                  mr: 1, 
-                  fontSize: 18,
-                  color: theme.palette.text.secondary 
-                }} />
-                <Typography variant="body2">Amman, Jordan</Typography>
-              </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {[
+                { icon: <Email />, text: 'osama200181@gmail.com' },
+                { icon: <Phone />, text: '+962 7 7972 834' },
+                { icon: <LocationOn />, text: 'Amman, Jordan' }
+              ].map((item, index) => (
+                <Box key={index} sx={{ 
+                  display: "flex", 
+                  alignItems: "center",
+                  '&:hover': {
+                    '& .MuiSvgIcon-root': {
+                      transform: 'scale(1.1)',
+                      color: theme.palette.primary.main
+                    }
+                  }
+                }}>
+                  <Box sx={{ 
+                    mr: 1.5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    backgroundColor: theme.palette.action.hover,
+                    transition: 'all 0.3s ease'
+                  }}>
+                    {React.cloneElement(item.icon, {
+                      sx: { 
+                        fontSize: 18,
+                        color: theme.palette.text.secondary,
+                        transition: 'all 0.3s ease'
+                      }
+                    })}
+                  </Box>
+                  <Typography variant="body2" sx={{ 
+                    color: theme.palette.text.secondary,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      color: theme.palette.text.primary
+                    }
+                  }}>
+                    {item.text}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Grid>
         </Grid>
@@ -83,78 +115,51 @@ const Footer = () => {
         {/* Divider */}
         <Divider sx={{ 
           my: 4, 
-          backgroundColor: theme.palette.divider
+          borderColor: theme.palette.divider,
+          opacity: 0.5
         }} />
 
         {/* Copyright & Legal */}
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Typography variant="body2" sx={{ 
-              color: theme.palette.text.secondary 
-            }}>
-              © {new Date().getFullYear()} EduGo Learning Management System. All
-              rights reserved.
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            sx={{ textAlign: { xs: "left", md: "right" } }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                justifyContent: { xs: "flex-start", md: "flex-end" },
-                mt: { xs: 2, md: 0 },
-              }}
-            >
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 2
+        }}>
+          <Typography variant="body2" sx={{ 
+            color: theme.palette.text.secondary,
+            fontSize: '0.85rem'
+          }}>
+            © {new Date().getFullYear()} SkillUp Learning Management System. All
+            rights reserved.
+          </Typography>
+          
+          <Box sx={{
+            display: 'flex',
+            gap: 3
+          }}>
+            {['Privacy Policy', 'Terms of Service', 'Support'].map((item) => (
               <Link
+                key={item}
                 href="#"
-                color="inherit"
-                underline="hover"
+                underline="none"
                 variant="body2"
                 sx={{ 
                   color: theme.palette.text.secondary,
-                  "&:hover": { 
-                    color: theme.palette.text.primary 
+                  fontSize: '0.85rem',
+                  transition: 'all 0.3s ease',
+                  '&:hover': { 
+                    color: theme.palette.primary.main,
+                    transform: 'translateY(-2px)'
                   } 
                 }}
               >
-                Privacy Policy
+                {item}
               </Link>
-              <Link
-                href="#"
-                color="inherit"
-                underline="hover"
-                variant="body2"
-                sx={{ 
-                  color: theme.palette.text.secondary,
-                  "&:hover": { 
-                    color: theme.palette.text.primary 
-                  } 
-                }}
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="#"
-                color="inherit"
-                underline="hover"
-                variant="body2"
-                sx={{ 
-                  color: theme.palette.text.secondary,
-                  "&:hover": { 
-                    color: theme.palette.text.primary 
-                  } 
-                }}
-              >
-                Support
-              </Link>
-            </Box>
-          </Grid>
-        </Grid>
+            ))}
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

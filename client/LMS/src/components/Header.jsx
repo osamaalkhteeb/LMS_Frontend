@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { 
   AppBar,
   Toolbar,
@@ -11,6 +12,7 @@ import {
   Tooltip,
   Button
 } from '@mui/material';
+
 import {
   Menu as MenuIcon,
   Search as SearchIcon,
@@ -18,34 +20,36 @@ import {
   School as SchoolIcon,
   Settings as SettingsIcon,
   MenuBook as MenuBookIcon,
-  Dashboard as DashboardIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon
+  Dashboard as DashboardIcon
 } from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import ThemeToggleButton from './ThemeToggleButton';
+import { useThemeContext } from '../contexts/ThemeContext.jsx';
 
 // Styled components
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: '12px',
-  backgroundColor: theme.palette.mode === 'dark' 
-    ? alpha(theme.palette.common.white, 0.15)
-    : alpha(theme.palette.common.black, 0.05),
+  borderRadius: '25px',
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  border: `1px solid ${alpha(theme.palette.common.white, 0.2)}`,
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark'
-      ? alpha(theme.palette.common.white, 0.25)
-      : alpha(theme.palette.common.black, 0.08),
+    backgroundColor: alpha(theme.palette.common.white, 0.2),
+    border: `1px solid ${alpha(theme.palette.common.white, 0.3)}`,
   },
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:focus-within': {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    border: `1px solid ${alpha(theme.palette.common.white, 0.4)}`,
+    boxShadow: `0 0 0 2px ${alpha(theme.palette.common.white, 0.1)}`,
+  },
   marginRight: theme.spacing(2),
-  marginLeft: 0,
+  marginLeft: theme.spacing(2),
   width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
-    width: 'auto',
-  },
+  maxWidth: '500px',
+  transition: theme.transitions.create(['width', 'background-color', 'border', 'box-shadow'], {
+    duration: theme.transitions.duration.shorter,
+  }),
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -60,60 +64,67 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%',
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1.5, 1, 1.5, 0),
+    padding: theme.spacing(1.5, 1, 1.2, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    fontSize: '0.95rem',
+    fontWeight: 400,
     transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '24ch',
+    '&::placeholder': {
+      color: alpha(theme.palette.common.white, 0.7),
+      opacity: 1,
     },
-  },
-  '& .MuiInputBase-input:focus': {
-    width: '32ch',
+    [theme.breakpoints.up('md')]: {
+      width: '25ch',
+      '&:focus': {
+        width: '35ch',
+      },
+    },
   },
 }));
 
 const HeaderButton = styled(Button)(({ theme }) => ({
   textTransform: 'none',
-  borderRadius: '12px',
-  padding: '8px 16px',
-  margin: '0 4px',
+  borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(1, 2),
+  margin: theme.spacing(0, 0.5),
   fontWeight: 500,
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  color: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.contrastText,
-  backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : theme.palette.primary.main,
+  color: theme.palette.common.white,
+  backgroundColor: 'transparent',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.08) : theme.palette.primary.dark,
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
   },
-  '&:focus': {
-    outline: 'none',
-    boxShadow: 'none',
+  '&.MuiButton-contained': {
+    backgroundColor: theme.palette.common.white,
+    color: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.common.white, 0.9),
+    },
   },
 }));
 
 const HeaderIconButton = styled(IconButton)(({ theme }) => ({
-  borderRadius: '12px',
-  padding: '8px',
-  margin: '0 4px',
-  color: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.contrastText,
-  backgroundColor: theme.palette.mode === 'dark' ? 'transparent' : theme.palette.primary.main,
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  borderRadius: theme.shape.borderRadius,
+  color: theme.palette.common.white,
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.08) : theme.palette.primary.dark,
-    transform: 'scale(1.05)',
-  },
-  '&:focus': {
-    outline: 'none',
-    boxShadow: 'none',
+    backgroundColor: alpha(theme.palette.common.white, 0.1),
   },
 }));
 
-const Header = ({ mode, toggleDarkMode }) => {
+const ContentContainer = styled(Box)({
+  width: '100%',
+  maxWidth: '1480px',
+  margin: '0 auto',
+  display: 'flex',
+});
+
+const Header = () => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const { user, logout } = useAuth();
+  const { mode } = useThemeContext();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -173,11 +184,11 @@ const Header = ({ mode, toggleDarkMode }) => {
   };
 
   const menuId = 'primary-search-account-menu';
-  const renderMenu = (
+  const renderProfileMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={menuId}
+      id="profile-menu"
       keepMounted
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
@@ -198,11 +209,14 @@ const Header = ({ mode, toggleDarkMode }) => {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
+      PaperProps={{
+        sx: {
+          width: 220,
+        },
+      }}
     >
-      <MenuItem onClick={toggleDarkMode}>
-        <IconButton size="large" color="inherit">
-          {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-        </IconButton>
+      <MenuItem>
+        <ThemeToggleButton />
         <p>{mode === 'light' ? 'Dark' : 'Light'} Mode</p>
       </MenuItem>
 
@@ -225,11 +239,29 @@ const Header = ({ mode, toggleDarkMode }) => {
       )}
 
       {user && (
+        <MenuItem onClick={handleProfileClick}>
+          <IconButton size="large" color="inherit">
+            <AccountCircleIcon />
+          </IconButton>
+          <p>Profile</p>
+        </MenuItem>
+      )}
+
+      {user && (
         <MenuItem onClick={handleSettingsClick}>
           <IconButton size="large" color="inherit">
             <SettingsIcon />
           </IconButton>
           <p>Settings</p>
+        </MenuItem>
+      )}
+
+      {user && (
+        <MenuItem onClick={handleLogout}>
+          <IconButton size="large" color="inherit">
+            <AccountCircleIcon />
+          </IconButton>
+          <p>Logout</p>
         </MenuItem>
       )}
 
@@ -255,80 +287,74 @@ const Header = ({ mode, toggleDarkMode }) => {
       <AppBar
         position="fixed"
         sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: (theme) => 
-            theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.primary.main,
-          boxShadow: '0px 2px 4px -1px rgba(0,0,0,0.1)',
-          borderBottom: (theme) => 
-            `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)'}`,
-          color: (theme) => 
-            theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.contrastText
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          boxShadow: "none",
+          backdropFilter: "blur(20px)",
         }}
       >
-        <Toolbar>
-          <Box sx={{
-            maxWidth: '1520px',
-            width: '100%',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 16px'
-          }}>
-            {/* Logo */}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                mr: 2,
-                cursor: 'pointer',
-                '&:hover': { opacity: 0.8 }
-              }}
-              onClick={() => user ? handleDashboardClick() : navigate('/')}
-            >
-              <SchoolIcon sx={{ mr: 1, fontSize: 28 }} />
-              <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
-                EduGo
-              </Typography>
-            </Box>
+        <Toolbar sx={{ padding: "0 !important" }}>
+          <Box
+            sx={{
+              width: "100%",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            }}
+          >
+            <ContentContainer>
+              {/* Mobile menu button */}
+              <HeaderIconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="open menu"
+                sx={{ mr: 1, display: { xs: 'flex', md: 'none' } }}
+                onClick={handleMobileMenuOpen}
+              >
+                <MenuIcon />
+              </HeaderIconButton>
 
-            {/* Mobile menu button */}
-            <HeaderIconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              sx={{ mr: 2, display: { xs: 'flex', md: 'none' } }}
-              onClick={handleMobileMenuOpen}
-              disableRipple
-            >
-              <MenuIcon />
-            </HeaderIconButton>
-
-            {/* Search Bar */}
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </Search>
-
-            <Box sx={{ flexGrow: 1 }} />
-
-            {/* Desktop Icons */}
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
-              <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
-                <HeaderIconButton
-                  size="large"
-                  color="inherit"
-                  onClick={toggleDarkMode}
-                  disableRipple
+              {/* Logo - hidden on mobile */}
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'flex' },
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  flexGrow: { xs: 1, md: 0 },
+                  mr: { md: 2 },
+                }}
+                onClick={handleDashboardClick}
+              >
+                <SchoolIcon sx={{ mr: 1, fontSize: 28 }} />
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component="div"
+                  sx={{ fontWeight: 700 }}
                 >
-                  {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
-                </HeaderIconButton>
-              </Tooltip>
+                  SkillUP
+                </Typography>
+              </Box>
+
+              {/* Search - always visible */}
+              <Box sx={{ flexGrow: 1, display: 'flex', px: 2 }}>
+                <Search sx={{ width: '100%' }}>
+                  <SearchIconWrapper>
+                    <SearchIcon />
+                  </SearchIconWrapper>
+                  <StyledInputBase
+                    placeholder="Search courses..."
+                    inputProps={{ 'aria-label': 'search' }}
+                  />
+                </Search>
+              </Box>
+
+              {/* Desktop actions */}
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'flex' },
+                  alignItems: 'center',
+                }}
+              >
+                <ThemeToggleButton />
 
               {user && (
                 <Tooltip title="Dashboard">
@@ -358,21 +384,19 @@ const Header = ({ mode, toggleDarkMode }) => {
                     <HeaderIconButton
                       size="large"
                       onClick={handleSettingsClick}
-                      disableRipple
                     >
                       <SettingsIcon />
                     </HeaderIconButton>
                   </Tooltip>
 
-                  <Tooltip title="Account">
+                  <Tooltip title="Account settings">
                     <HeaderIconButton
                       size="large"
                       edge="end"
                       aria-label="account of current user"
-                      aria-controls={menuId}
+                      aria-controls="profile-menu"
                       aria-haspopup="true"
                       onClick={handleProfileMenuOpen}
-                      disableRipple
                     >
                       <AccountCircleIcon />
                     </HeaderIconButton>
@@ -386,30 +410,16 @@ const Header = ({ mode, toggleDarkMode }) => {
                     Login
                   </HeaderButton>
                   <HeaderButton
-                    variant="outlined"
+                    variant="contained"
                     onClick={handleRegisterClick}
-                    sx={{
-                      borderColor: (theme) => 
-                        theme.palette.mode === 'dark' 
-                          ? 'rgba(255, 255, 255, 0.23)' 
-                          : 'rgba(255, 255, 255, 0.7)',
-                      '&:hover': {
-                        borderColor: (theme) => 
-                          theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 255, 255, 0.3)' 
-                            : 'rgba(255, 255, 255, 0.9)',
-                        backgroundColor: (theme) => 
-                          theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 255, 255, 0.08)' 
-                            : 'rgba(255, 255, 255, 0.04)',
-                      }
-                    }}
+                    sx={{ ml: 1 }}
                   >
-                    Register
+                    Sign Up
                   </HeaderButton>
                 </>
               )}
-            </Box>
+              </Box>
+            </ContentContainer>
           </Box>
         </Toolbar>
       </AppBar>
@@ -417,7 +427,7 @@ const Header = ({ mode, toggleDarkMode }) => {
       {/* Spacer for fixed AppBar */}
       <Toolbar />
       {renderMobileMenu}
-      {renderMenu}
+      {renderProfileMenu}
     </Box>
   );
 };
