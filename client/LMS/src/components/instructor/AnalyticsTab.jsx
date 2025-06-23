@@ -20,7 +20,7 @@ import {
   People as PeopleIcon,
   School as SchoolIcon
 } from "@mui/icons-material";
-import { ClockLoader } from "react-spinners";
+import { CircleLoader } from "react-spinners";
 import { useCourseAnalytics } from "../../hooks/useAnalytics";
 
 const AnalyticsTab = ({ analytics, loading, error, onRefresh }) => {
@@ -50,7 +50,7 @@ const AnalyticsTab = ({ analytics, loading, error, onRefresh }) => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight={300}>
-        <ClockLoader size={50} color="#1976d2" />
+        <CircleLoader size={50} color="#1976d2" />
       </Box>
     );
   }
@@ -188,7 +188,7 @@ const AnalyticsTab = ({ analytics, loading, error, onRefresh }) => {
         <DialogContent>
           {detailsLoading ? (
             <Box display="flex" justifyContent="center" py={4}>
-              <ClockLoader size={50} color="#1976d2" />
+              <CircleLoader size={50} color="#1976d2" />
             </Box>
           ) : courseDetails ? (
             <Grid container spacing={3}>

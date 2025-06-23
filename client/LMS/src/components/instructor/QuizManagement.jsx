@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import {
   Box,
   Card,
@@ -362,7 +362,7 @@ const QuizManagement = ({ lessonId, lessonTitle }) => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-        <ClockLoader size={50} color="#1976d2" />
+        <CircleLoader size={50} color="#1976d2" />
       </Box>
     );
   }
@@ -686,7 +686,7 @@ const QuizManagement = ({ lessonId, lessonTitle }) => {
             <Button onClick={() => setShowQuestionDialog(false)} disabled={isQuestionSubmitting}>Cancel</Button>
             <Button onClick={handleSaveQuestion} variant="contained" disabled={isQuestionSubmitting}>
               {isQuestionSubmitting ? (
-                <ClockLoader size={20} color="#1976d2" />
+                <CircleLoader size={20} color="#1976d2" />
               ) : (
                 editingQuestionIndex !== null ? 'Update Question' : 'Add Question'
               )}

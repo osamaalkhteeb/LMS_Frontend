@@ -25,7 +25,7 @@ import {
   Avatar,
   styled
 } from "@mui/material";
-import { ClockLoader } from "react-spinners";
+import { CircleLoader } from "react-spinners";
 import { MoreVert as MoreIcon } from "@mui/icons-material";
 import { FiBook, FiUsers, FiTrendingUp } from "react-icons/fi";
 import InstructorProfile from "../../components/instructor/InstructorProfile";
@@ -336,7 +336,7 @@ const InstructorDashboard = () => {
             <Grid item xs={12} sm={6} md={4} key={i}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Box sx={{ height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ClockLoader size={24} color="#1976d2" />
+                  <CircleLoader size={24} color="#1976d2" />
                 </Box>
               </Paper>
             </Grid>

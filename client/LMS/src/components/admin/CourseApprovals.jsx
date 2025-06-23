@@ -15,7 +15,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import { CheckCircle } from "@mui/icons-material";
 import { getPendingCourses, approveCourse } from "../../services/courseService";
 
@@ -86,7 +86,7 @@ const CourseApprovals = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      <ClockLoader size={50} color="#1976d2" />
+                      <CircleLoader size={50} color="#1976d2" />
                     </TableCell>
                   </TableRow>
                 ) : error ? (

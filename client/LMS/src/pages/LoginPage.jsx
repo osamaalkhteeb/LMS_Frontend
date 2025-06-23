@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { ClockLoader } from "react-spinners";
+import { CircleLoader } from "react-spinners";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useFormHandler } from "../hooks/useFormHandler";
@@ -222,7 +222,7 @@ const LoginPage = () => {
                 onClick={handleGoogleLogin}
                 disabled={loading || isSubmitting}
               >
-                {loading || isSubmitting ? <ClockLoader size={24} color="#7f00ff" /> : 'Continue with Google'}
+                {loading || isSubmitting ? <CircleLoader size={24} color="#7f00ff" /> : 'Continue with Google'}
               </Button>
 
               <Divider sx={{ my: 3 }}>
@@ -329,7 +329,7 @@ const LoginPage = () => {
                 }}
                 disabled={loading || isSubmitting}
               >
-                {(loading || isSubmitting) ? <ClockLoader size={24} color="#ffffff" /> : 'Sign In'}
+                {(loading || isSubmitting) ? <CircleLoader size={24} color="#ffffff" /> : 'Sign In'}
               </Button>
 
               <Typography 

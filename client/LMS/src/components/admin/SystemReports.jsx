@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import {
   Grid,
   Card,
@@ -112,7 +112,7 @@ const SystemReports = () => {
             
             {loading ? (
               <Box display="flex" justifyContent="center" py={4}>
-                <ClockLoader size={50} color="#1976d2" />
+                <CircleLoader size={50} color="#1976d2" />
               </Box>
             ) : (
               <TableContainer>
@@ -186,7 +186,7 @@ const SystemReports = () => {
               >
                 <ListItemIcon>
                   {generating['user-registration'] ? (
-                    <ClockLoader size={20} color="#1976d2" />
+                    <CircleLoader size={20} color="#1976d2" />
                   ) : (
                     <PeopleIcon color="primary" />
                   )}
@@ -201,7 +201,7 @@ const SystemReports = () => {
               >
                 <ListItemIcon>
                   {generating['course-enrollment'] ? (
-                    <ClockLoader size={20} color="#1976d2" />
+                    <CircleLoader size={20} color="#1976d2" />
                   ) : (
                     <CourseIcon color="secondary" />
                   )}
@@ -216,7 +216,7 @@ const SystemReports = () => {
               >
                 <ListItemIcon>
                   {generating['course-creation'] ? (
-                    <ClockLoader size={20} color="#1976d2" />
+                    <CircleLoader size={20} color="#1976d2" />
                   ) : (
                     <CourseIcon color="success" />
                   )}
@@ -232,7 +232,7 @@ const SystemReports = () => {
               >
                 <ListItemIcon>
                   {generating['system-usage'] ? (
-                    <ClockLoader size={20} color="#1976d2" />
+                    <CircleLoader size={20} color="#1976d2" />
                   ) : (
                     <SettingsIcon color="info" />
                   )}

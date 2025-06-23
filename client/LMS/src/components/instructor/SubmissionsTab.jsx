@@ -24,7 +24,7 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import { 
   Visibility, 
   Grade, 
@@ -145,7 +145,7 @@ const SubmissionsTab = () => {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <ClockLoader size={20} color="#1976d2" />
+        <CircleLoader size={20} color="#1976d2" />
       </Box>
     );
   }
@@ -288,7 +288,7 @@ const SubmissionsTab = () => {
         <DialogContent>
           {submissionsLoading ? (
             <Box display="flex" justifyContent="center" p={3}>
-              <ClockLoader size={50} color="#1976d2" />
+              <CircleLoader size={50} color="#1976d2" />
             </Box>
           ) : submissions.length > 0 ? (
             <TableContainer>
@@ -307,10 +307,10 @@ const SubmissionsTab = () => {
                     <TableRow key={submission.id}>
                       <TableCell>
                         <Typography variant="body2" fontWeight="medium">
-                          {submission.student_name || 'Unknown Student'}
+                          {submission.user_name || 'Unknown Student'}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {submission.student_email}
+                          {submission.user_email}
                         </Typography>
                       </TableCell>
                       <TableCell>{formatDate(submission.submitted_at)}</TableCell>
@@ -396,7 +396,7 @@ const SubmissionsTab = () => {
         <DialogContent>
           <Box mt={2}>
             <Typography variant="subtitle2" gutterBottom>
-              Student: {selectedSubmission?.student_name}
+              Student: {selectedSubmission?.user_name}
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={3}>
               Assignment: {selectedAssignment?.title}
@@ -447,7 +447,7 @@ const SubmissionsTab = () => {
             variant="contained"
             disabled={!gradeForm.grade || grading || gradeForm.grade > 100 || gradeForm.grade < 0}
           >
-            {grading ? <ClockLoader size={20} color="#1976d2" /> : 'Submit Grade'}
+            {grading ? <CircleLoader size={20} color="#1976d2" /> : 'Submit Grade'}
           </Button>
         </DialogActions>
       </Dialog>
