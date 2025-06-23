@@ -12,7 +12,7 @@ import {
   Divider
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useFormHandler } from '../hooks/useFormHandler';
@@ -285,7 +285,7 @@ const SignupPage = () => {
                 }}
               >
                 {(loading || isSubmitting) ? (
-                  <ClockLoader size={24} color="#ffffff" />
+                  <CircleLoader size={24} color="#ffffff" />
                 ) : (
                   'Sign Up'
                 )}

@@ -8,7 +8,7 @@ import {
   CardContent,
   Alert,
 } from "@mui/material";
-import { ClockLoader } from "react-spinners";
+import { CircleLoader } from "react-spinners";
 import { FiTrendingUp, FiUsers, FiBookOpen, FiDollarSign, FiUserCheck, FiTarget } from 'react-icons/fi';
 import {
   Chart as ChartJS,
@@ -49,7 +49,7 @@ const AnalyticsTab = () => {
         alignItems="center"
         minHeight={300}
       >
-        <ClockLoader size={50} color="#7f00ff" />
+        <CircleLoader size={50} color="#7f00ff" />
       </Box>
     );
   }

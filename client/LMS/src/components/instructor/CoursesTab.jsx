@@ -11,7 +11,7 @@ import {
   Typography,
   Alert
 } from "@mui/material";
-import { ClockLoader } from 'react-spinners';
+import { ClockLoCircleLoaderader } from 'react-spinners';
 import { Add as AddIcon, Edit as EditIcon, People as PeopleIcon, MoreVert as MoreIcon, Visibility as VisibilityIcon } from "@mui/icons-material";
 import { getInstructorCourses, publishCourse } from "../../services/courseService";
 
@@ -51,7 +51,7 @@ const CoursesTab = ({ courses: propCourses, loading: propLoading, error: propErr
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
-        <ClockLoader size={50} color="#1976d2" />
+        <CircleLoader size={50} color="#1976d2" />
       </Box>
     );
   }

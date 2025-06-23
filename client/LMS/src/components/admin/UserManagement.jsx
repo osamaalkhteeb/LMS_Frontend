@@ -19,7 +19,7 @@ import {
   ListItemIcon,
   Alert,
 } from "@mui/material";
-import { ClockLoader } from 'react-spinners';
+import { CircleLoader } from 'react-spinners';
 import PersonIcon from '@mui/icons-material/Person';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -160,7 +160,7 @@ const UserManagement = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
-                      <ClockLoader size={50} color="#1976d2" />
+                      <CircleLoader size={50} color="#1976d2" />
                     </TableCell>
                   </TableRow>
                 ) : error ? (
